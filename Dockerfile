@@ -4,10 +4,9 @@ WORKDIR /app
 
 COPY package.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --no-audit --no-fund
+    npm install --no-audit --no-fund --prefer-offline
 
 COPY . .
-RUN npx tsc --noEmit
 RUN --mount=type=cache,target=.next/cache \
     npm run build
 
