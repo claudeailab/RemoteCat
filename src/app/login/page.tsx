@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,8 +24,7 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) { toast.error(data.error ?? "Login failed"); return; }
-      router.push(data.redirect ?? "/");
-      router.refresh();
+      window.location.href = data.redirect ?? "/";
     } catch {
       toast.error("Network error");
     } finally {
