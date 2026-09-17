@@ -52,6 +52,16 @@ export async function register() {
         \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (\`id\`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+      `CREATE TABLE IF NOT EXISTS \`remotecat_audit_logs\` (
+        \`id\` int NOT NULL AUTO_INCREMENT,
+        \`user_email\` varchar(255),
+        \`action\` varchar(100) NOT NULL,
+        \`resource\` varchar(255) NOT NULL,
+        \`detail\` text,
+        \`ip\` varchar(45),
+        \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (\`id\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
     ];
     for (const sql of stmts) {
       await db.execute(sql as unknown as Parameters<typeof db.execute>[0]);

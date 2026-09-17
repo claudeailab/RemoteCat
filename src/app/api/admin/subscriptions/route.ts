@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { plans } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
+import { logAudit } from "@/lib/audit";
 
 const planSchema = z.object({ name: z.string().min(1), monthlyPrice: z.number().int().min(0), yearlyPrice: z.number().int().min(0), features: z.string().default("[]") });
 const updateSchema = planSchema.extend({ id: z.number().int().positive() });
@@ -15,16 +16,18 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const body = await req.json().catch(() => null);
   const parsed = planSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   await db.insert(plans).values(parsed.data);
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
+  await logAudit({ userEmail: admin.email, action: "create", resource: "plan", detail: `name=${parsed.data.name}`, ip });
   return NextResponse.json({ ok: true });
 }
 
 export async function PUT(req: NextRequest) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const body = await req.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -35,13 +38,17 @@ export async function PUT(req: NextRequest) {
     yearlyPrice: sql`${yearlyPrice}`,
     features: sql`${features}`,
   }).where(eq(plans.id, id));
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
+  await logAudit({ userEmail: admin.email, action: "update", resource: "plan", detail: `id=${id} name=${name}`, ip });
   return NextResponse.json({ ok: true });
 }
 
 export async function DELETE(req: NextRequest) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const id = Number(new URL(req.url).searchParams.get("id"));
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   await db.delete(plans).where(eq(plans.id, id));
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
+  await logAudit({ userEmail: admin.email, action: "delete", resource: "plan", detail: `id=${id}`, ip });
   return NextResponse.json({ ok: true });
 }

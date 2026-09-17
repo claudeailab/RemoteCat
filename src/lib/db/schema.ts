@@ -33,6 +33,16 @@ export const sessions = mysqlTable("sessions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const audit_logs = mysqlTable("remotecat_audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  userEmail: varchar("user_email", { length: 255 }),
+  action: varchar("action", { length: 100 }).notNull(),
+  resource: varchar("resource", { length: 255 }).notNull(),
+  detail: text("detail"),
+  ip: varchar("ip", { length: 45 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const plans = mysqlTable("plans", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { getSetting, setSetting } from "@/lib/encryption";
+import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
   host: z.string(),
@@ -24,7 +25,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -38,5 +39,7 @@ export async function POST(req: NextRequest) {
     setSetting("smtp_fromName", fromName),
     setSetting("smtp_fromEmail", fromEmail),
   ]);
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
+  await logAudit({ userEmail: admin.email, action: "update", resource: "settings.email", ip });
   return NextResponse.json({ ok: true });
 }

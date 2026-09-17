@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings, Users, CreditCard, Mail, Bot } from "lucide-react";
+import { LayoutDashboard, Settings, Users, CreditCard, Mail, Bot, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import version from "../../../version.json";
 
@@ -26,10 +26,11 @@ const platformItems = [
 ];
 
 const systemItems = [
-  { href: "/admin/settings/payments", label: "Payments", icon: CreditCard },
-  { href: "/admin/settings/m365", label: "Microsoft 365", icon: Settings },
-  { href: "/admin/settings/email", label: "Email Settings", icon: Mail },
-  { href: "/admin/settings/ai", label: "Artificial Intelligence", icon: Bot },
+  { href: "/admin/settings", label: "General Settings", icon: SlidersHorizontal },
+  { href: "/admin/payments", label: "Payments", icon: CreditCard },
+  { href: "/admin/m365", label: "Microsoft 365", icon: Settings },
+  { href: "/admin/email", label: "Email Settings", icon: Mail },
+  { href: "/admin/ai", label: "Artificial Intelligence", icon: Bot },
 ];
 
 interface NavItem { href: string; label: string; icon: React.ElementType }
@@ -101,8 +102,8 @@ export default function AdminSidebar({ user }: Props) {
       <nav className="md:hidden fixed bottom-0 inset-x-0 border-t bg-background z-40 flex" style={{ borderColor: "var(--color-sidebar-border)" }}>
         {[
           { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-          { href: "/admin/settings/m365", label: "M365", icon: Settings },
-          { href: "/admin/settings/ai", label: "AI", icon: Bot },
+          { href: "/admin/m365", label: "M365", icon: Settings },
+          { href: "/admin/ai", label: "AI", icon: Bot },
           { href: "/admin/users", label: "Users", icon: Users },
           { href: "/admin/subscriptions", label: "Plans", icon: CreditCard },
         ].map(({ href, label, icon: Icon, exact }) => {

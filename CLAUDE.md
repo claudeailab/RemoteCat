@@ -11,6 +11,7 @@
 - Version shown in admin sidebar and user profile menu only — nowhere else
 - Version bumped with every push; commit message format: `v{version} - short description`
 - Aggressively minimize GitHub Actions runtime: BuildKit cache, GHA layer cache, path filters, concurrency groups
+- **After every resolved issue**: update the webapp skill (`references/steps.md` and `references/conventions.md`) so the fix is captured for future sessions
 
 ## Tech Stack
 

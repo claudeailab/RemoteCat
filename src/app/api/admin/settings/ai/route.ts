@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { getSetting, setSetting } from "@/lib/encryption";
+import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
   provider: z.enum(["anthropic", "openai"]),
@@ -17,12 +18,14 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  await requireAdmin();
+  const admin = await requireAdmin();
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const { provider, apiKey, model } = parsed.data;
   if (apiKey) await setSetting(`${provider}_apiKey`, apiKey);
   await setSetting(`${provider}_model`, model);
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
+  await logAudit({ userEmail: admin.email, action: "update", resource: `settings.ai.${provider}`, detail: `model=${model}`, ip });
   return NextResponse.json({ ok: true });
 }
