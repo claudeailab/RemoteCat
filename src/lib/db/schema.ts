@@ -1,0 +1,46 @@
+import { mysqlTable, varchar, text, timestamp, int, boolean, date } from "drizzle-orm/mysql-core";
+
+export const remote_catsettings = mysqlTable("remote_catsettings", {
+  key: varchar("key", { length: 255 }).primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
+});
+
+export const secret_reminders = mysqlTable("secret_reminders", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  expiryDate: date("expiry_date").notNull(),
+  reminderDays: int("reminder_days").notNull().default(30),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const users = mysqlTable("users", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  displayName: varchar("display_name", { length: 255 }),
+  role: varchar("role", { length: 50 }).notNull().default("user"),
+  source: varchar("source", { length: 50 }).notNull().default("local"),
+  azureOid: varchar("azure_oid", { length: 255 }),
+  passwordHash: varchar("password_hash", { length: 255 }),
+  lastLoginAt: timestamp("last_login_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sessions = mysqlTable("sessions", {
+  id: varchar("id", { length: 255 }).primaryKey(),
+  userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const plans = mysqlTable("plans", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  monthlyPrice: int("monthly_price").notNull().default(0),
+  yearlyPrice: int("yearly_price").notNull().default(0),
+  features: text("features").notNull().default("[]"),
+  stripePriceIdMonthly: varchar("stripe_price_id_monthly", { length: 255 }),
+  stripePriceIdYearly: varchar("stripe_price_id_yearly", { length: 255 }),
+  active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});

@@ -1,0 +1,108 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Loader2, Eye, EyeOff } from "lucide-react";
+import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-conventions";
+
+export default function EmailPage() {
+  const [form, setForm] = useState({ host: "", port: "587", ssl: false, user: "", password: "", fromName: "", fromEmail: "" });
+  const [showPass, setShowPass] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testTo, setTestTo] = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/settings/email").then(r => r.json()).then(d => { if (d.data) setForm(f => ({ ...f, ...d.data })); });
+  }, []);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const r = await fetch("/api/admin/settings/email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const d = await r.json();
+      if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
+      toast.success("SMTP settings saved");
+    } finally { setSaving(false); }
+  }
+
+  async function handleTest() {
+    if (!testTo) { toast.error("Enter a test recipient"); return; }
+    setTesting(true);
+    try {
+      const r = await fetch("/api/admin/settings/email/test", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ to: testTo }) });
+      const d = await r.json();
+      if (!r.ok) { toast.error(d.error ?? "Test failed"); return; }
+      toast.success("Test email sent");
+    } finally { setTesting(false); }
+  }
+
+  return (
+    <div className={pageWrapper}>
+      <div className={pageInner}>
+        <h1 className={pageTitle}>Email / SMTP Settings</h1>
+        <Card className="mt-6">
+          <CardHeader><CardTitle>SMTP Configuration</CardTitle><CardDescription>Configure outbound email settings.</CardDescription></CardHeader>
+          <CardContent>
+            <form onSubmit={handleSave} className={fieldGap}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <Label>SMTP Host</Label>
+                  <Input value={form.host} onChange={e => setForm(f => ({ ...f, host: e.target.value }))} placeholder="smtp.example.com" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>Port</Label>
+                  <Input type="number" value={form.port} onChange={e => setForm(f => ({ ...f, port: e.target.value }))} />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch checked={form.ssl} onCheckedChange={v => setForm(f => ({ ...f, ssl: v }))} />
+                <Label>SSL/TLS</Label>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <Label>Username</Label>
+                  <Input value={form.user} onChange={e => setForm(f => ({ ...f, user: e.target.value }))} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>Password</Label>
+                  <div className="relative">
+                    <Input type={showPass ? "text" : "password"} value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} className="pr-10" />
+                    <button type="button" className="absolute right-3 top-3 text-muted-foreground" onClick={() => setShowPass(v => !v)}>
+                      {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+        </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <Label>From Name</Label>
+                  <Input value={form.fromName} onChange={e => setForm(f => ({ ...f, fromName: e.target.value }))} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label>From Email</Label>
+                  <Input type="email" value={form.fromEmail} onChange={e => setForm(f => ({ ...f, fromEmail: e.target.value }))} />
+                </div>
+              </div>
+              <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              </Button>
+            </form>
+            <div className="mt-6 flex flex-col sm:flex-row gap-2 items-start">
+              <Input placeholder="Send test to..." value={testTo} onChange={e => setTestTo(e.target.value)} className="max-w-xs" />
+              <Button variant="outline" disabled={testing} onClick={handleTest}>
+                {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Test Email"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
