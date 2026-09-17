@@ -12,11 +12,11 @@ COPY --chown=appuser:nodejs .next/static ./.next/static
 
 # Reinstall bcrypt for the target architecture.
 # standalone bundles the amd64 build-machine binary; replace with the correct arch.
-COPY package.json ./
+# Use --prefix so only bcrypt+deps are installed (no package.json → no 400+ pkg reinstall).
 RUN --mount=type=cache,target=/root/.npm \
-    npm install bcrypt --no-audit --no-fund && \
-    cp -r node_modules/bcrypt .next/standalone/node_modules/bcrypt && \
-    rm -rf node_modules package.json
+    npm install --prefix /tmp/bcrypt-pkg --no-save --no-audit --no-fund bcrypt && \
+    cp -r /tmp/bcrypt-pkg/node_modules/bcrypt /app/node_modules/bcrypt && \
+    rm -rf /tmp/bcrypt-pkg
 
 USER appuser
 EXPOSE 8095
