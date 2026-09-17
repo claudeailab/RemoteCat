@@ -1,6 +1,63 @@
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
+  // Create tables if they don't exist
+  {
+    const { db } = await import("./lib/db");
+    const stmts = [
+      `CREATE TABLE IF NOT EXISTS \`remotecat_settings\` (
+        \`key\` varchar(255) NOT NULL,
+        \`value\` text NOT NULL,
+        \`updated_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        PRIMARY KEY (\`key\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+      `CREATE TABLE IF NOT EXISTS \`secret_reminders\` (
+        \`id\` int NOT NULL AUTO_INCREMENT,
+        \`name\` varchar(255) NOT NULL,
+        \`expiry_date\` date NOT NULL,
+        \`reminder_days\` int NOT NULL DEFAULT 30,
+        \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (\`id\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+      `CREATE TABLE IF NOT EXISTS \`users\` (
+        \`id\` int NOT NULL AUTO_INCREMENT,
+        \`email\` varchar(255) NOT NULL,
+        \`display_name\` varchar(255),
+        \`role\` varchar(50) NOT NULL DEFAULT 'user',
+        \`source\` varchar(50) NOT NULL DEFAULT 'local',
+        \`azure_oid\` varchar(255),
+        \`password_hash\` varchar(255),
+        \`last_login_at\` timestamp NULL,
+        \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (\`id\`),
+        UNIQUE KEY \`users_email_unique\` (\`email\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+      `CREATE TABLE IF NOT EXISTS \`sessions\` (
+        \`id\` varchar(255) NOT NULL,
+        \`user_id\` int NOT NULL,
+        \`expires_at\` timestamp NOT NULL,
+        \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (\`id\`),
+        CONSTRAINT \`sessions_user_id_fk\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+      `CREATE TABLE IF NOT EXISTS \`plans\` (
+        \`id\` int NOT NULL AUTO_INCREMENT,
+        \`name\` varchar(255) NOT NULL,
+        \`monthly_price\` int NOT NULL DEFAULT 0,
+        \`yearly_price\` int NOT NULL DEFAULT 0,
+        \`features\` text NOT NULL DEFAULT ('[]'),
+        \`stripe_price_id_monthly\` varchar(255),
+        \`stripe_price_id_yearly\` varchar(255),
+        \`active\` tinyint(1) NOT NULL DEFAULT 1,
+        \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (\`id\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+    ];
+    for (const sql of stmts) {
+      await db.execute(sql as unknown as Parameters<typeof db.execute>[0]);
+    }
+  }
+
   const checks: { name: string; check: () => Promise<void> }[] = [];
 
   checks.push({
