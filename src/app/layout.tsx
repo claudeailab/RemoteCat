@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "RemoteCat",
   description: "RemoteCat application",
   manifest: "/manifest.json",
+};
+
+export const viewport: Viewport = {
   themeColor: "#09090b",
 };
 
@@ -19,7 +22,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="theme-color" content="#09090b" />
       </head>
       <body className={geist.className}>
         {children}
