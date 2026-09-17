@@ -1,0 +1,42 @@
+services:
+
+  remote-cat:
+    image: ghcr.io/claudeailab/remote-cat
+    container_name: remote-cat
+    hostname: remote-cat
+    restart: unless-stopped
+    user: "0"
+    environment:
+      TZ: ${TZ}
+      REMOTE_CAT_JWT_SECRET: ${REMOTE_CAT_JWT_SECRET}
+      REMOTE_CAT_ENCRYPTION_KEY: ${REMOTE_CAT_ENCRYPTION_KEY}
+      REMOTE_CAT_ADMIN_JWT_SECRET: ${REMOTE_CAT_ADMIN_JWT_SECRET}
+      REMOTE_CAT_ADMIN_EMAIL: ${REMOTE_CAT_ADMIN_EMAIL}
+      REMOTE_CAT_ADMIN_PASSWORD: ${REMOTE_CAT_ADMIN_PASSWORD}
+      REMOTE_CAT_DB_HOST: ${REMOTE_CAT_DB_HOST}
+      REMOTE_CAT_DB_PORT: ${REMOTE_CAT_DB_PORT}
+      REMOTE_CAT_DB_USER: ${REMOTE_CAT_DB_USER}
+      REMOTE_CAT_DB_PASSWORD: ${REMOTE_CAT_DB_PASSWORD}
+      REMOTE_CAT_DB_NAME: ${REMOTE_CAT_DB_NAME}
+      REMOTE_CAT_M365_ENABLED: ${REMOTE_CAT_M365_ENABLED}
+      REMOTE_CAT_SMTP_ENABLED: ${REMOTE_CAT_SMTP_ENABLED}
+      REMOTE_CAT_ANTHROPIC_ENABLED: ${REMOTE_CAT_ANTHROPIC_ENABLED}
+      REMOTE_CAT_OPENAI_ENABLED: ${REMOTE_CAT_OPENAI_ENABLED}
+      REMOTE_CAT_STRIPE_ENABLED: ${REMOTE_CAT_STRIPE_ENABLED}
+    ports:
+      - ${PORT:-8095}:8095
+    volumes:
+      - ./config/remote-cat/data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8095/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # depends_on:
+    #   db:
+    #     condition: service_healthy
+
+networks:
+  default:
+    name: remote-cat
