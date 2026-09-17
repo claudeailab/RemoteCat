@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import {
-  LayoutDashboard, Settings, Users, CreditCard, Mail, Bot,
-  ChevronDown, ChevronRight,
-} from "lucide-react";
+import { LayoutDashboard, Settings, Users, CreditCard, Mail, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import version from "../../../version.json";
 
@@ -41,30 +37,6 @@ interface Props { user: { email: string; displayName?: string | null } }
 
 export default function AdminSidebar({ user }: Props) {
   const path = usePathname();
-  const platformActive = platformItems.some(i => path.startsWith(i.href));
-  const systemActive = systemItems.some(i => path.startsWith(i.href));
-  const [platformOpen, setPlatformOpen] = useState(platformActive);
-  const [systemOpen, setSystemOpen] = useState(systemActive);
-
-  const navGroup = (title: string, items: NavItem[], anyActive: boolean, open: boolean, toggle: () => void) => (
-    <div className="mt-2">
-      <button
-        onClick={toggle}
-        className={cn(
-          "w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors",
-          anyActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-        )}
-      >
-        <span>{title}</span>
-        {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-      </button>
-      {open && (
-        <div className="mt-1 flex flex-col gap-0.5 pl-2 border-l-2 border-primary/20 ml-3">
-          {items.map(({ href, label, icon: Icon }) => navLink(href, label, Icon))}
-        </div>
-      )}
-    </div>
-  );
 
   const navLink = (href: string, label: string, Icon: React.ElementType, exact = false) => {
     const active = exact ? path === href : path.startsWith(href);
@@ -85,6 +57,17 @@ export default function AdminSidebar({ user }: Props) {
     );
   };
 
+  const navGroup = (title: string, items: NavItem[]) => (
+    <div className="mt-3">
+      <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {title}
+      </p>
+      <div className="mt-1 flex flex-col gap-0.5">
+        {items.map(({ href, label, icon: Icon }) => navLink(href, label, Icon))}
+      </div>
+    </div>
+  );
+
   return (
     <>
       {/* Desktop sidebar */}
@@ -92,7 +75,6 @@ export default function AdminSidebar({ user }: Props) {
         className="hidden md:flex flex-col fixed inset-y-0 left-0 w-56 z-40"
         style={{ background: "var(--color-sidebar)", borderRight: "1px solid var(--color-sidebar-border)" }}
       >
-        {/* Logo + name */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b" style={{ borderColor: "var(--color-sidebar-border)" }}>
           <CatLogo className="h-7 w-7 text-primary shrink-0" />
           <div className="flex flex-col min-w-0">
@@ -101,11 +83,10 @@ export default function AdminSidebar({ user }: Props) {
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-1">
+        <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-0.5">
           {navLink("/admin", "Dashboard", LayoutDashboard, true)}
-
-          {navGroup("Platform", platformItems, platformActive, platformOpen, () => setPlatformOpen(o => !o))}
-          {navGroup("System", systemItems, systemActive, systemOpen, () => setSystemOpen(o => !o))}
+          {navGroup("Platform", platformItems)}
+          {navGroup("System", systemItems)}
         </nav>
 
         <div
