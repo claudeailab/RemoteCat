@@ -1,7 +1,6 @@
 .git
-.next
+.next/cache
 node_modules
-drizzle
 .env*
 *.md
 docker-compose.yml
