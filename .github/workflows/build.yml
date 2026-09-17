@@ -51,7 +51,6 @@ jobs:
             .next/standalone
             .next/static
             public
-            drizzle
           retention-days: 1
           compression-level: 1
 

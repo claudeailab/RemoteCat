@@ -9,7 +9,6 @@ RUN addgroup --system --gid 1001 nodejs && adduser --system --uid 1001 appuser
 COPY --chown=appuser:nodejs public ./public
 COPY --chown=appuser:nodejs .next/standalone ./
 COPY --chown=appuser:nodejs .next/static ./.next/static
-COPY --chown=appuser:nodejs drizzle ./drizzle
 
 # Reinstall bcrypt for the target architecture.
 # standalone bundles the amd64 build-machine binary; replace with the correct arch.
