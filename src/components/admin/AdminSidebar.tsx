@@ -24,21 +24,47 @@ function CatLogo({ className }: { className?: string }) {
   );
 }
 
-const managementItems = [
-  { href: "/admin/settings/m365", label: "M365", icon: Settings },
-  { href: "/admin/settings/email", label: "Email / SMTP", icon: Mail },
-  { href: "/admin/settings/ai", label: "AI", icon: Bot },
-  { href: "/admin/settings/payments", label: "Payments", icon: CreditCard },
-  { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
+const platformItems = [
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
 ];
 
+const systemItems = [
+  { href: "/admin/settings/payments", label: "Payments", icon: CreditCard },
+  { href: "/admin/settings/m365", label: "Microsoft 365", icon: Settings },
+  { href: "/admin/settings/email", label: "Email Settings", icon: Mail },
+  { href: "/admin/settings/ai", label: "Artificial Intelligence", icon: Bot },
+];
+
+interface NavItem { href: string; label: string; icon: React.ElementType }
 interface Props { user: { email: string; displayName?: string | null } }
 
 export default function AdminSidebar({ user }: Props) {
   const path = usePathname();
-  const managementActive = managementItems.some(i => path.startsWith(i.href));
-  const [managementOpen, setManagementOpen] = useState(managementActive);
+  const platformActive = platformItems.some(i => path.startsWith(i.href));
+  const systemActive = systemItems.some(i => path.startsWith(i.href));
+  const [platformOpen, setPlatformOpen] = useState(platformActive);
+  const [systemOpen, setSystemOpen] = useState(systemActive);
+
+  const navGroup = (title: string, items: NavItem[], anyActive: boolean, open: boolean, toggle: () => void) => (
+    <div className="mt-2">
+      <button
+        onClick={toggle}
+        className={cn(
+          "w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors",
+          anyActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <span>{title}</span>
+        {open ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+      </button>
+      {open && (
+        <div className="mt-1 flex flex-col gap-0.5 pl-2 border-l-2 border-primary/20 ml-3">
+          {items.map(({ href, label, icon: Icon }) => navLink(href, label, Icon))}
+        </div>
+      )}
+    </div>
+  );
 
   const navLink = (href: string, label: string, Icon: React.ElementType, exact = false) => {
     const active = exact ? path === href : path.startsWith(href);
@@ -76,33 +102,10 @@ export default function AdminSidebar({ user }: Props) {
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-1">
-          {/* Dashboard */}
           {navLink("/admin", "Dashboard", LayoutDashboard, true)}
 
-          {/* Management group */}
-          <div className="mt-2">
-            <button
-              onClick={() => setManagementOpen(o => !o)}
-              className={cn(
-                "w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors",
-                managementActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              <span>Management</span>
-              {managementOpen
-                ? <ChevronDown className="h-3.5 w-3.5" />
-                : <ChevronRight className="h-3.5 w-3.5" />}
-            </button>
-            {managementOpen && (
-              <div className="mt-1 flex flex-col gap-0.5 pl-2 border-l-2 border-primary/20 ml-3">
-                {managementItems.map(({ href, label, icon: Icon }) =>
-                  navLink(href, label, Icon)
-                )}
-              </div>
-            )}
-          </div>
+          {navGroup("Platform", platformItems, platformActive, platformOpen, () => setPlatformOpen(o => !o))}
+          {navGroup("System", systemItems, systemActive, systemOpen, () => setSystemOpen(o => !o))}
         </nav>
 
         <div
