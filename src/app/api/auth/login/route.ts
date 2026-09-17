@@ -43,12 +43,13 @@ export async function POST(req: NextRequest) {
   if (!valid) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
 
   const token = await createSession(user.id);
-  const redirect = user.role === "admin" ? "/admin" : "/dashboard";
+  const redirectPath = user.role === "admin" ? "/admin" : "/dashboard";
+  const isSecure = req.headers.get("x-forwarded-proto") === "https";
 
-  const res = NextResponse.json({ redirect });
+  const res = NextResponse.json({ redirect: redirectPath });
   res.cookies.set("remotecat-session", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: isSecure,
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60,
     path: "/",
