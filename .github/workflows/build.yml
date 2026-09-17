@@ -33,6 +33,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore Next.js build cache
+        id: nextjs-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/nextjs-cache
+          key: nextjs-${{ matrix.artifact }}-${{ github.sha }}
+          restore-keys: |
+            nextjs-${{ matrix.artifact }}-
+
+      - name: Ensure cache dir exists
+        run: mkdir -p /tmp/nextjs-cache
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -49,9 +61,26 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
+          build-contexts: nextjscache=/tmp/nextjs-cache
           outputs: type=image,name=ghcr.io/claudeailab/remotecat,push-by-digest=true,name-canonical=true,push=true
           cache-from: type=gha,scope=${{ matrix.artifact }}
           cache-to: type=gha,mode=max,scope=${{ matrix.artifact }}
+
+      - name: Extract Next.js cache from build
+        run: |
+          docker buildx build \
+            --platform ${{ matrix.platform }} \
+            --target cache-export \
+            --build-context nextjscache=/tmp/nextjs-cache \
+            --cache-from type=gha,scope=${{ matrix.artifact }} \
+            --output type=local,dest=/tmp/nextjs-cache-new \
+            .
+
+      - name: Save Next.js build cache
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/nextjs-cache-new
+          key: nextjs-${{ matrix.artifact }}-${{ github.sha }}
 
       - name: Export digest
         run: |
