@@ -1,5 +1,5 @@
 {
-  "name": "remote-cat",
+  "name": "remotecat",
   "version": "0.1.0",
   "private": true,
   "scripts": {

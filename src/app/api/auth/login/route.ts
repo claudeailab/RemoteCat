@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const redirect = user.role === "admin" ? "/admin" : "/dashboard";
 
   const res = NextResponse.json({ redirect });
-  res.cookies.set("remote-cat-session", token, {
+  res.cookies.set("remotecat-session", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

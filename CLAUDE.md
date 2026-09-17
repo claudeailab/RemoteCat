@@ -1,4 +1,4 @@
-# CLAUDE.md — remote-cat
+# CLAUDE.md — remotecat
 
 ## Rules (non-negotiable)
 

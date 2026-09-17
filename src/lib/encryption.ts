@@ -20,18 +20,18 @@ export function decrypt(ciphertext: string): string {
 
 export async function getSetting(key: string): Promise<string | null> {
   const { db } = await import("./db");
-  const { remote_catsettings } = await import("./db/schema");
+  const { remotecat_settings } = await import("./db/schema");
   const { eq } = await import("drizzle-orm");
-  const [row] = await db.select({ value: remote_catsettings.value }).from(remote_catsettings).where(eq(remote_catsettings.key, key)).limit(1);
+  const [row] = await db.select({ value: remotecat_settings.value }).from(remotecat_settings).where(eq(remotecat_settings.key, key)).limit(1);
   if (!row) return null;
   try { return decrypt(row.value); } catch { return null; }
 }
 
 export async function setSetting(key: string, value: string): Promise<void> {
   const { db } = await import("./db");
-  const { remote_catsettings } = await import("./db/schema");
+  const { remotecat_settings } = await import("./db/schema");
   const { sql } = await import("drizzle-orm");
   const encrypted = encrypt(value);
-  await db.insert(remote_catsettings).values({ key, value: encrypted })
+  await db.insert(remotecat_settings).values({ key, value: encrypted })
     .onDuplicateKeyUpdate({ set: { value: sql`values(value)`, updatedAt: sql`now()` } });
 }

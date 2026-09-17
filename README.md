@@ -19,10 +19,10 @@ A production-ready Next.js webapp with admin area, user management, M365 integra
 ```yaml
 services:
 
-  remote-cat:
-    image: ghcr.io/claudeailab/remote-cat
-    container_name: remote-cat
-    hostname: remote-cat
+  remotecat:
+    image: ghcr.io/claudeailab/remotecat
+    container_name: remotecat
+    hostname: remotecat
     restart: unless-stopped
     user: "0"
     environment:
@@ -40,7 +40,7 @@ services:
     ports:
       - 8095:8095
     volumes:
-      - ./config/remote-cat/data:/data
+      - ./config/remotecat/data:/data
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:8095/api/health"]
       interval: 30s
@@ -53,7 +53,7 @@ services:
 
 networks:
   default:
-    name: remote-cat
+    name: remotecat
 ```
 
 ## Updating

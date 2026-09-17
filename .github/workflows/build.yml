@@ -47,7 +47,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/claudeailab/remote-cat:latest
-            ghcr.io/claudeailab/remote-cat:v${{ steps.version.outputs.version }}
+            ghcr.io/claudeailab/remotecat:latest
+            ghcr.io/claudeailab/remotecat:v${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

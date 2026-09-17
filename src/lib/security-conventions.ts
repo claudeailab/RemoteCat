@@ -1,5 +1,5 @@
 /**
- * Security conventions for remote-cat.
+ * Security conventions for remotecat.
  *
  * Pre-push checklist — every box must pass:
  * [ ] All client input validated with zod
@@ -16,6 +16,6 @@
 
 export const SECURITY_CONVENTIONS = {
   maxQueryLimit: 100,
-  sessionCookieName: "remote-cat-session",
+  sessionCookieName: "remotecat-session",
   loginRateLimit: { limit: 10, windowMs: 60_000 },
 } as const;

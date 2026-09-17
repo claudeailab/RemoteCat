@@ -7,7 +7,7 @@ import crypto from "crypto";
 
 export async function getSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get("remote-cat-session")?.value;
+  const token = cookieStore.get("remotecat-session")?.value;
   if (!token) return null;
 
   const [session] = await db

@@ -1,6 +1,6 @@
 import { mysqlTable, varchar, text, timestamp, int, boolean, date } from "drizzle-orm/mysql-core";
 
-export const remote_catsettings = mysqlTable("remote_catsettings", {
+export const remotecat_settings = mysqlTable("remotecat_settings", {
   key: varchar("key", { length: 255 }).primaryKey(),
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
