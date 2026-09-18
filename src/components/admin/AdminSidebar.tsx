@@ -65,12 +65,12 @@ export default function AdminSidebar({ user, features, platform }: Props) {
 
   const platformItems: NavItem[] = [
     { href: "/admin/users", label: "Users", icon: Users },
-    ...(features.subscriptions ? [{ href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard }] : []),
   ];
 
   const systemItems: NavItem[] = [
     { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
     ...(features.payments ? [{ href: "/admin/payments", label: "Payments", icon: CreditCard }] : []),
+    ...(features.subscriptions ? [{ href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard }] : []),
     ...(features.m365 ? [{ href: "/admin/m365", label: "Microsoft 365", icon: Settings }] : []),
     ...(features.email ? [{ href: "/admin/email", label: "Email Settings", icon: Mail }] : []),
     ...(features.ai ? [{ href: "/admin/ai", label: "Artificial Intelligence", icon: Bot }] : []),
@@ -78,10 +78,10 @@ export default function AdminSidebar({ user, features, platform }: Props) {
 
   const mobileItems = [
     { href: "/admin", label: "Home", icon: LayoutDashboard, exact: true },
-    ...(features.m365 ? [{ href: "/admin/m365", label: "M365", icon: Settings }] : []),
-    ...(features.ai ? [{ href: "/admin/ai", label: "AI", icon: Bot }] : []),
     { href: "/admin/users", label: "Users", icon: Users },
+    ...(features.payments ? [{ href: "/admin/payments", label: "Payments", icon: CreditCard }] : []),
     ...(features.subscriptions ? [{ href: "/admin/subscriptions", label: "Plans", icon: CreditCard }] : []),
+    ...(features.ai ? [{ href: "/admin/ai", label: "AI", icon: Bot }] : []),
   ];
 
   return (

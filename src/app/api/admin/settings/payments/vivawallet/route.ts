@@ -5,6 +5,7 @@ import { getSetting, setSetting } from "@/lib/encryption";
 import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
+  enabled: z.boolean(),
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),
   merchantId: z.string().optional(),
@@ -13,13 +14,15 @@ const schema = z.object({
 
 export async function GET() {
   await requireAdmin();
-  const [liveMode, clientId, clientSecret, merchantId] = await Promise.all([
+  const [enabled, liveMode, clientId, clientSecret, merchantId] = await Promise.all([
+    getSetting("vivawallet_enabled"),
     getSetting("vivawallet_liveMode"),
     getSetting("vivawallet_clientId"),
     getSetting("vivawallet_clientSecret"),
     getSetting("vivawallet_merchantId"),
   ]);
   return NextResponse.json({ data: {
+    enabled: enabled === "true",
     liveMode: liveMode === "true",
     clientId: clientId ?? "",
     clientSecretSet: !!clientSecret,
@@ -32,8 +35,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  const { clientId, clientSecret, merchantId, liveMode } = parsed.data;
+  const { enabled, clientId, clientSecret, merchantId, liveMode } = parsed.data;
 
+  await setSetting("vivawallet_enabled", String(enabled));
   await setSetting("vivawallet_liveMode", String(liveMode));
   if (clientId !== undefined) await setSetting("vivawallet_clientId", clientId);
   if (clientSecret) await setSetting("vivawallet_clientSecret", clientSecret);

@@ -5,6 +5,7 @@ import { getSetting, setSetting } from "@/lib/encryption";
 import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
+  enabled: z.boolean(),
   clientId: z.string().optional(),
   clientSecret: z.string().optional(),
   liveMode: z.boolean(),
@@ -12,12 +13,14 @@ const schema = z.object({
 
 export async function GET() {
   await requireAdmin();
-  const [liveMode, clientId, clientSecret] = await Promise.all([
+  const [enabled, liveMode, clientId, clientSecret] = await Promise.all([
+    getSetting("paypal_enabled"),
     getSetting("paypal_liveMode"),
     getSetting("paypal_clientId"),
     getSetting("paypal_clientSecret"),
   ]);
   return NextResponse.json({ data: {
+    enabled: enabled === "true",
     liveMode: liveMode === "true",
     clientId: clientId ?? "",
     clientSecretSet: !!clientSecret,
@@ -29,8 +32,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  const { clientId, clientSecret, liveMode } = parsed.data;
+  const { enabled, clientId, clientSecret, liveMode } = parsed.data;
 
+  await setSetting("paypal_enabled", String(enabled));
   await setSetting("paypal_liveMode", String(liveMode));
   if (clientId !== undefined) await setSetting("paypal_clientId", clientId);
   if (clientSecret) await setSetting("paypal_clientSecret", clientSecret);

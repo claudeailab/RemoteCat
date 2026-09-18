@@ -5,6 +5,7 @@ import { getSetting, setSetting } from "@/lib/encryption";
 import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
+  enabled: z.boolean(),
   publishableKey: z.string().optional(),
   secretKey: z.string().optional(),
   webhookSecret: z.string().optional(),
@@ -13,13 +14,15 @@ const schema = z.object({
 
 export async function GET() {
   await requireAdmin();
-  const [liveMode, publishableKey, secretKey, webhookSecret] = await Promise.all([
+  const [enabled, liveMode, publishableKey, secretKey, webhookSecret] = await Promise.all([
+    getSetting("stripe_enabled"),
     getSetting("stripe_liveMode"),
     getSetting("stripe_publishableKey"),
     getSetting("stripe_secretKey"),
     getSetting("stripe_webhookSecret"),
   ]);
   return NextResponse.json({ data: {
+    enabled: enabled !== "false",
     liveMode: liveMode === "true",
     publishableKey: publishableKey ?? "",
     secretKeySet: !!secretKey,
@@ -32,9 +35,10 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  const { publishableKey, secretKey, webhookSecret, liveMode } = parsed.data;
+  const { enabled, publishableKey, secretKey, webhookSecret, liveMode } = parsed.data;
 
   const prevLiveMode = await getSetting("stripe_liveMode");
+  await setSetting("stripe_enabled", String(enabled));
   await setSetting("stripe_liveMode", String(liveMode));
   if (publishableKey) await setSetting("stripe_publishableKey", publishableKey);
   if (secretKey) await setSetting("stripe_secretKey", secretKey);

@@ -39,21 +39,19 @@ function SecretInput({ value, onChange, placeholder, isSet, setLabel }: {
 }
 
 function StripeTab() {
-  const [form, setForm] = useState({ publishableKey: "", secretKey: "", webhookSecret: "", liveMode: false });
+  const [form, setForm] = useState({ enabled: true, publishableKey: "", secretKey: "", webhookSecret: "", liveMode: false });
   const [secretKeySet, setSecretKeySet] = useState(false);
   const [webhookSecretSet, setWebhookSecretSet] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const savedPublishableKey = useRef("");
-  const savedLiveMode = useRef(false);
+  const savedRef = useRef({ enabled: true, publishableKey: "", liveMode: false });
 
   useEffect(() => {
     fetch("/api/admin/settings/payments").then(r => r.json()).then(d => {
       if (d.data) {
-        const { liveMode, publishableKey, secretKeySet: sks, webhookSecretSet: whs } = d.data;
-        savedLiveMode.current = liveMode ?? false;
-        savedPublishableKey.current = publishableKey ?? "";
-        setForm(f => ({ ...f, liveMode: liveMode ?? false, publishableKey: publishableKey ?? "" }));
+        const { enabled, liveMode, publishableKey, secretKeySet: sks, webhookSecretSet: whs } = d.data;
+        savedRef.current = { enabled: enabled ?? true, liveMode: liveMode ?? false, publishableKey: publishableKey ?? "" };
+        setForm(f => ({ ...f, enabled: enabled ?? true, liveMode: liveMode ?? false, publishableKey: publishableKey ?? "" }));
         setSecretKeySet(!!sks);
         setWebhookSecretSet(!!whs);
       }
@@ -61,10 +59,11 @@ function StripeTab() {
   }, []);
 
   const dirty =
-    form.publishableKey !== savedPublishableKey.current ||
+    form.enabled !== savedRef.current.enabled ||
+    form.publishableKey !== savedRef.current.publishableKey ||
     form.secretKey !== "" ||
     form.webhookSecret !== "" ||
-    form.liveMode !== savedLiveMode.current;
+    form.liveMode !== savedRef.current.liveMode;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -74,8 +73,7 @@ function StripeTab() {
       const d = await r.json();
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("Stripe settings saved");
-      savedLiveMode.current = form.liveMode;
-      savedPublishableKey.current = form.publishableKey;
+      savedRef.current = { enabled: form.enabled, liveMode: form.liveMode, publishableKey: form.publishableKey };
       if (form.secretKey) setSecretKeySet(true);
       if (form.webhookSecret) setWebhookSecretSet(true);
       setForm(f => ({ ...f, secretKey: "", webhookSecret: "" }));
@@ -95,8 +93,16 @@ function StripeTab() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Stripe</CardTitle>
-        <CardDescription>Configure Stripe for payments and subscriptions.</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Stripe</CardTitle>
+            <CardDescription>Configure Stripe for payments and subscriptions.</CardDescription>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Label className="text-sm">{form.enabled ? "Enabled" : "Disabled"}</Label>
+            <Switch checked={form.enabled} onCheckedChange={v => setForm(f => ({ ...f, enabled: v }))} />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSave} className={fieldGap}>
@@ -131,32 +137,29 @@ function StripeTab() {
 }
 
 function VivaWalletTab() {
-  const [form, setForm] = useState({ clientId: "", clientSecret: "", merchantId: "", liveMode: false });
+  const [form, setForm] = useState({ enabled: false, clientId: "", clientSecret: "", merchantId: "", liveMode: false });
   const [clientSecretSet, setClientSecretSet] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const savedClientId = useRef("");
-  const savedMerchantId = useRef("");
-  const savedLiveMode = useRef(false);
+  const savedRef = useRef({ enabled: false, clientId: "", merchantId: "", liveMode: false });
 
   useEffect(() => {
     fetch("/api/admin/settings/payments/vivawallet").then(r => r.json()).then(d => {
       if (d.data) {
-        const { liveMode, clientId, clientSecretSet: css, merchantId } = d.data;
-        savedLiveMode.current = liveMode ?? false;
-        savedClientId.current = clientId ?? "";
-        savedMerchantId.current = merchantId ?? "";
-        setForm(f => ({ ...f, liveMode: liveMode ?? false, clientId: clientId ?? "", merchantId: merchantId ?? "" }));
+        const { enabled, liveMode, clientId, clientSecretSet: css, merchantId } = d.data;
+        savedRef.current = { enabled: enabled ?? false, liveMode: liveMode ?? false, clientId: clientId ?? "", merchantId: merchantId ?? "" };
+        setForm(f => ({ ...f, enabled: enabled ?? false, liveMode: liveMode ?? false, clientId: clientId ?? "", merchantId: merchantId ?? "" }));
         setClientSecretSet(!!css);
       }
     });
   }, []);
 
   const dirty =
-    form.clientId !== savedClientId.current ||
+    form.enabled !== savedRef.current.enabled ||
+    form.clientId !== savedRef.current.clientId ||
     form.clientSecret !== "" ||
-    form.merchantId !== savedMerchantId.current ||
-    form.liveMode !== savedLiveMode.current;
+    form.merchantId !== savedRef.current.merchantId ||
+    form.liveMode !== savedRef.current.liveMode;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -166,9 +169,7 @@ function VivaWalletTab() {
       const d = await r.json();
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("Viva Wallet settings saved");
-      savedLiveMode.current = form.liveMode;
-      savedClientId.current = form.clientId;
-      savedMerchantId.current = form.merchantId;
+      savedRef.current = { enabled: form.enabled, liveMode: form.liveMode, clientId: form.clientId, merchantId: form.merchantId };
       if (form.clientSecret) setClientSecretSet(true);
       setForm(f => ({ ...f, clientSecret: "" }));
     } finally { setSaving(false); }
@@ -187,8 +188,16 @@ function VivaWalletTab() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Viva Wallet</CardTitle>
-        <CardDescription>Configure Viva Wallet (formerly Viva Payments) for payment processing.</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Viva Wallet</CardTitle>
+            <CardDescription>Configure Viva Wallet (formerly Viva Payments) for payment processing.</CardDescription>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Label className="text-sm">{form.enabled ? "Enabled" : "Disabled"}</Label>
+            <Switch checked={form.enabled} onCheckedChange={v => setForm(f => ({ ...f, enabled: v }))} />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSave} className={fieldGap}>
@@ -223,29 +232,28 @@ function VivaWalletTab() {
 }
 
 function PayPalTab() {
-  const [form, setForm] = useState({ clientId: "", clientSecret: "", liveMode: false });
+  const [form, setForm] = useState({ enabled: false, clientId: "", clientSecret: "", liveMode: false });
   const [clientSecretSet, setClientSecretSet] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const savedClientId = useRef("");
-  const savedLiveMode = useRef(false);
+  const savedRef = useRef({ enabled: false, clientId: "", liveMode: false });
 
   useEffect(() => {
     fetch("/api/admin/settings/payments/paypal").then(r => r.json()).then(d => {
       if (d.data) {
-        const { liveMode, clientId, clientSecretSet: css } = d.data;
-        savedLiveMode.current = liveMode ?? false;
-        savedClientId.current = clientId ?? "";
-        setForm(f => ({ ...f, liveMode: liveMode ?? false, clientId: clientId ?? "" }));
+        const { enabled, liveMode, clientId, clientSecretSet: css } = d.data;
+        savedRef.current = { enabled: enabled ?? false, liveMode: liveMode ?? false, clientId: clientId ?? "" };
+        setForm(f => ({ ...f, enabled: enabled ?? false, liveMode: liveMode ?? false, clientId: clientId ?? "" }));
         setClientSecretSet(!!css);
       }
     });
   }, []);
 
   const dirty =
-    form.clientId !== savedClientId.current ||
+    form.enabled !== savedRef.current.enabled ||
+    form.clientId !== savedRef.current.clientId ||
     form.clientSecret !== "" ||
-    form.liveMode !== savedLiveMode.current;
+    form.liveMode !== savedRef.current.liveMode;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -255,8 +263,7 @@ function PayPalTab() {
       const d = await r.json();
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("PayPal settings saved");
-      savedLiveMode.current = form.liveMode;
-      savedClientId.current = form.clientId;
+      savedRef.current = { enabled: form.enabled, liveMode: form.liveMode, clientId: form.clientId };
       if (form.clientSecret) setClientSecretSet(true);
       setForm(f => ({ ...f, clientSecret: "" }));
     } finally { setSaving(false); }
@@ -275,8 +282,16 @@ function PayPalTab() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>PayPal</CardTitle>
-        <CardDescription>Configure PayPal for payment processing.</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>PayPal</CardTitle>
+            <CardDescription>Configure PayPal for payment processing.</CardDescription>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Label className="text-sm">{form.enabled ? "Enabled" : "Disabled"}</Label>
+            <Switch checked={form.enabled} onCheckedChange={v => setForm(f => ({ ...f, enabled: v }))} />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSave} className={fieldGap}>
