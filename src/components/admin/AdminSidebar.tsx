@@ -35,7 +35,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
           "group flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-150",
           active
             ? "bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] text-[var(--color-primary)] font-medium"
-            : "text-[hsl(25_5%_40%)] hover:bg-[hsl(40_6%_96%)] hover:text-[hsl(20_14%_10%)] dark:text-[hsl(30_6%_58%)] dark:hover:bg-[hsl(20_8%_16%)] dark:hover:text-[hsl(40_10%_93%)]"
+            : "text-[hsl(20_14%_18%)] hover:bg-[hsl(40_6%_96%)] hover:text-[hsl(20_14%_10%)] dark:text-[hsl(30_6%_58%)] dark:hover:bg-[hsl(20_8%_16%)] dark:hover:text-[hsl(40_10%_93%)]"
         )}
       >
         <Icon className={cn("h-4 w-4 shrink-0", active ? "text-[var(--color-primary)]" : "opacity-60 group-hover:opacity-100")} />
@@ -48,7 +48,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
     if (items.length === 0) return null;
     return (
       <div className="mt-5">
-        <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-[hsl(25_5%_55%)] dark:text-[hsl(30_6%_42%)]">
+        <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-[hsl(20_8%_40%)] dark:text-[hsl(30_6%_42%)]">
           {title}
         </p>
         <div className="flex flex-col gap-0.5">
@@ -96,8 +96,8 @@ export default function AdminSidebar({ user, features, platform }: Props) {
             <span hidden className="text-[var(--color-primary)] text-xs font-bold absolute">{platform.name.slice(0, 1).toUpperCase()}</span>
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-semibold text-sm tracking-tight text-[hsl(20_14%_10%)] dark:text-[hsl(40_10%_93%)] truncate">{platform.name}</span>
-            <span className="text-[10px] text-[hsl(25_5%_55%)] dark:text-[hsl(30_6%_42%)] font-mono">v{version.version}</span>
+            <span className="font-semibold text-sm tracking-tight text-[hsl(20_14%_8%)] dark:text-[hsl(40_10%_93%)] truncate">{platform.name}</span>
+            <span className="text-[10px] text-[hsl(20_5%_42%)] dark:text-[hsl(30_6%_42%)] font-mono">v{version.version}</span>
           </div>
         </div>
 
@@ -115,7 +115,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
             >
               {initials(user.displayName ?? user.email)}
             </div>
-            <span className="text-xs text-[hsl(25_5%_40%)] dark:text-[hsl(30_6%_58%)] truncate">{user.displayName ?? user.email}</span>
+            <span className="text-xs text-[hsl(20_14%_18%)] dark:text-[hsl(30_6%_58%)] truncate">{user.displayName ?? user.email}</span>
           </div>
         </div>
       </aside>
