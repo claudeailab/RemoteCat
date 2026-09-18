@@ -5,13 +5,13 @@ export async function register() {
   {
     const { db } = await import("./lib/db");
     const stmts = [
-      `CREATE TABLE IF NOT EXISTS \`remotecat_settings\` (
+      `CREATE TABLE IF NOT EXISTS \`webapp_settings\` (
         \`key\` varchar(255) NOT NULL,
         \`value\` text NOT NULL,
         \`updated_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         PRIMARY KEY (\`key\`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
-      `CREATE TABLE IF NOT EXISTS \`secret_reminders\` (
+      `CREATE TABLE IF NOT EXISTS \`webapp_secret_reminders\` (
         \`id\` int NOT NULL AUTO_INCREMENT,
         \`name\` varchar(255) NOT NULL,
         \`expiry_date\` date NOT NULL,
@@ -19,7 +19,16 @@ export async function register() {
         \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (\`id\`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
-      `CREATE TABLE IF NOT EXISTS \`users\` (
+      `CREATE TABLE IF NOT EXISTS \`webapp_permission_groups\` (
+        \`id\` int NOT NULL AUTO_INCREMENT,
+        \`name\` varchar(255) NOT NULL,
+        \`description\` varchar(500),
+        \`permissions\` text NOT NULL DEFAULT ('[]'),
+        \`is_default\` tinyint(1) NOT NULL DEFAULT 0,
+        \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (\`id\`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
+      `CREATE TABLE IF NOT EXISTS \`webapp_users\` (
         \`id\` int NOT NULL AUTO_INCREMENT,
         \`email\` varchar(255) NOT NULL,
         \`display_name\` varchar(255),
@@ -27,20 +36,21 @@ export async function register() {
         \`source\` varchar(50) NOT NULL DEFAULT 'local',
         \`azure_oid\` varchar(255),
         \`password_hash\` varchar(255),
+        \`group_id\` int NULL,
         \`last_login_at\` timestamp NULL,
         \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (\`id\`),
-        UNIQUE KEY \`users_email_unique\` (\`email\`)
+        UNIQUE KEY \`webapp_users_email_unique\` (\`email\`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
-      `CREATE TABLE IF NOT EXISTS \`sessions\` (
+      `CREATE TABLE IF NOT EXISTS \`webapp_sessions\` (
         \`id\` varchar(255) NOT NULL,
         \`user_id\` int NOT NULL,
         \`expires_at\` timestamp NOT NULL,
         \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (\`id\`),
-        CONSTRAINT \`sessions_user_id_fk\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE
+        CONSTRAINT \`webapp_sessions_user_id_fk\` FOREIGN KEY (\`user_id\`) REFERENCES \`webapp_users\` (\`id\`) ON DELETE CASCADE
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
-      `CREATE TABLE IF NOT EXISTS \`plans\` (
+      `CREATE TABLE IF NOT EXISTS \`webapp_plans\` (
         \`id\` int NOT NULL AUTO_INCREMENT,
         \`name\` varchar(255) NOT NULL,
         \`monthly_price\` int NOT NULL DEFAULT 0,
@@ -52,7 +62,7 @@ export async function register() {
         \`created_at\` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (\`id\`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4`,
-      `CREATE TABLE IF NOT EXISTS \`remotecat_audit_logs\` (
+      `CREATE TABLE IF NOT EXISTS \`webapp_audit_logs\` (
         \`id\` int NOT NULL AUTO_INCREMENT,
         \`user_email\` varchar(255),
         \`action\` varchar(100) NOT NULL,

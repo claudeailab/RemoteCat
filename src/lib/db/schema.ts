@@ -1,12 +1,12 @@
 import { mysqlTable, varchar, text, timestamp, int, boolean, date } from "drizzle-orm/mysql-core";
 
-export const remotecat_settings = mysqlTable("remotecat_settings", {
+export const settings = mysqlTable("webapp_settings", {
   key: varchar("key", { length: 255 }).primaryKey(),
   value: text("value").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
 
-export const secret_reminders = mysqlTable("secret_reminders", {
+export const secret_reminders = mysqlTable("webapp_secret_reminders", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   expiryDate: date("expiry_date").notNull(),
@@ -14,7 +14,16 @@ export const secret_reminders = mysqlTable("secret_reminders", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const users = mysqlTable("users", {
+export const permission_groups = mysqlTable("webapp_permission_groups", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: varchar("description", { length: 500 }),
+  permissions: text("permissions").notNull().default("[]"),
+  isDefault: boolean("is_default").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const users = mysqlTable("webapp_users", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   displayName: varchar("display_name", { length: 255 }),
@@ -22,18 +31,19 @@ export const users = mysqlTable("users", {
   source: varchar("source", { length: 50 }).notNull().default("local"),
   azureOid: varchar("azure_oid", { length: 255 }),
   passwordHash: varchar("password_hash", { length: 255 }),
+  groupId: int("group_id"),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const sessions = mysqlTable("sessions", {
+export const sessions = mysqlTable("webapp_sessions", {
   id: varchar("id", { length: 255 }).primaryKey(),
   userId: int("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const audit_logs = mysqlTable("remotecat_audit_logs", {
+export const audit_logs = mysqlTable("webapp_audit_logs", {
   id: int("id").autoincrement().primaryKey(),
   userEmail: varchar("user_email", { length: 255 }),
   action: varchar("action", { length: 100 }).notNull(),
@@ -43,7 +53,7 @@ export const audit_logs = mysqlTable("remotecat_audit_logs", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const plans = mysqlTable("plans", {
+export const plans = mysqlTable("webapp_plans", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   monthlyPrice: int("monthly_price").notNull().default(0),

@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: hsl(240 8% 98%);
+  --color-background: hsl(245 40% 97%);
   --color-foreground: hsl(224 71% 4%);
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(224 71% 4%);
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(224 71% 4%);
-  --color-primary: hsl(243 80% 58%);
+  --color-primary: hsl(243 82% 60%);
   --color-primary-foreground: hsl(0 0% 100%);
   --color-secondary: hsl(243 50% 96%);
   --color-secondary-foreground: hsl(243 75% 30%);
-  --color-muted: hsl(240 10% 95%);
-  --color-muted-foreground: hsl(220 9% 48%);
+  --color-muted: hsl(240 14% 94%);
+  --color-muted-foreground: hsl(220 9% 46%);
   --color-accent: hsl(243 50% 96%);
   --color-accent-foreground: hsl(243 75% 30%);
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(240 8% 90%);
-  --color-input: hsl(240 8% 90%);
-  --color-ring: hsl(243 80% 58%);
+  --color-border: hsl(240 10% 88%);
+  --color-input: hsl(240 10% 88%);
+  --color-ring: hsl(243 82% 60%);
   --color-sidebar: hsl(247 72% 19%);
   --color-sidebar-border: hsl(248 50% 26%);
   --radius: 0.6rem;
@@ -52,52 +52,52 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-background: hsl(224 14% 14%);
-    --color-foreground: hsl(220 16% 90%);
-    --color-card: hsl(224 14% 18%);
-    --color-card-foreground: hsl(220 16% 90%);
-    --color-popover: hsl(224 14% 18%);
-    --color-popover-foreground: hsl(220 16% 90%);
-    --color-primary: hsl(243 80% 68%);
+    --color-background: hsl(240 32% 9%);
+    --color-foreground: hsl(220 18% 92%);
+    --color-card: hsl(240 28% 14%);
+    --color-card-foreground: hsl(220 18% 92%);
+    --color-popover: hsl(240 28% 14%);
+    --color-popover-foreground: hsl(220 18% 92%);
+    --color-primary: hsl(252 88% 72%);
     --color-primary-foreground: hsl(0 0% 100%);
-    --color-secondary: hsl(224 14% 22%);
-    --color-secondary-foreground: hsl(220 16% 90%);
-    --color-muted: hsl(224 14% 21%);
-    --color-muted-foreground: hsl(220 10% 62%);
-    --color-accent: hsl(224 14% 23%);
-    --color-accent-foreground: hsl(220 16% 90%);
+    --color-secondary: hsl(240 24% 20%);
+    --color-secondary-foreground: hsl(220 18% 92%);
+    --color-muted: hsl(240 24% 18%);
+    --color-muted-foreground: hsl(240 12% 64%);
+    --color-accent: hsl(240 24% 21%);
+    --color-accent-foreground: hsl(220 18% 92%);
     --color-destructive: hsl(0 68% 56%);
     --color-destructive-foreground: hsl(0 0% 98%);
-    --color-border: hsl(224 14% 24%);
-    --color-input: hsl(224 14% 21%);
-    --color-ring: hsl(243 80% 68%);
-    --color-sidebar: hsl(248 65% 12%);
-    --color-sidebar-border: hsl(248 50% 20%);
+    --color-border: hsl(240 22% 22%);
+    --color-input: hsl(240 24% 18%);
+    --color-ring: hsl(252 88% 72%);
+    --color-sidebar: hsl(244 72% 10%);
+    --color-sidebar-border: hsl(244 55% 18%);
   }
 }
 
 :root[data-theme="dark"] {
-  --color-background: hsl(224 14% 14%);
-  --color-foreground: hsl(220 16% 90%);
-  --color-card: hsl(224 14% 18%);
-  --color-card-foreground: hsl(220 16% 90%);
-  --color-popover: hsl(224 14% 18%);
-  --color-popover-foreground: hsl(220 16% 90%);
-  --color-primary: hsl(243 80% 68%);
+  --color-background: hsl(240 32% 9%);
+  --color-foreground: hsl(220 18% 92%);
+  --color-card: hsl(240 28% 14%);
+  --color-card-foreground: hsl(220 18% 92%);
+  --color-popover: hsl(240 28% 14%);
+  --color-popover-foreground: hsl(220 18% 92%);
+  --color-primary: hsl(252 88% 72%);
   --color-primary-foreground: hsl(0 0% 100%);
-  --color-secondary: hsl(224 14% 22%);
-  --color-secondary-foreground: hsl(220 16% 90%);
-  --color-muted: hsl(224 14% 21%);
-  --color-muted-foreground: hsl(220 10% 62%);
-  --color-accent: hsl(224 14% 23%);
-  --color-accent-foreground: hsl(220 16% 90%);
+  --color-secondary: hsl(240 24% 20%);
+  --color-secondary-foreground: hsl(220 18% 92%);
+  --color-muted: hsl(240 24% 18%);
+  --color-muted-foreground: hsl(240 12% 64%);
+  --color-accent: hsl(240 24% 21%);
+  --color-accent-foreground: hsl(220 18% 92%);
   --color-destructive: hsl(0 68% 56%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(224 14% 24%);
-  --color-input: hsl(224 14% 21%);
-  --color-ring: hsl(243 80% 68%);
-  --color-sidebar: hsl(248 65% 12%);
-  --color-sidebar-border: hsl(248 50% 20%);
+  --color-border: hsl(240 22% 22%);
+  --color-input: hsl(240 24% 18%);
+  --color-ring: hsl(252 88% 72%);
+  --color-sidebar: hsl(244 72% 10%);
+  --color-sidebar-border: hsl(244 55% 18%);
 }
 
 @layer base {
@@ -106,6 +106,18 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(ellipse 130% 70% at 60% -10%, hsl(245 60% 93%) 0%, transparent 55%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) body {
+      background-image: radial-gradient(ellipse 140% 80% at 50% -5%, hsl(252 50% 20%) 0%, transparent 55%);
+    }
+  }
+  :root[data-theme="dark"] body {
+    background-image: radial-gradient(ellipse 140% 80% at 50% -5%, hsl(252 50% 20%) 0%, transparent 55%);
+  }
+  :root[data-theme="light"] body {
+    background-image: radial-gradient(ellipse 130% 70% at 60% -10%, hsl(245 60% 93%) 0%, transparent 55%);
   }
 }
 
@@ -120,6 +132,16 @@
   }
   .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px -8px rgba(79, 70, 229, 0.18), 0 4px 12px -4px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px -8px rgba(79, 70, 229, 0.22), 0 4px 12px -4px rgba(0, 0, 0, 0.12);
+  }
+  .page-header {
+    @apply relative overflow-hidden rounded-2xl p-5 mb-6 text-white;
+    background: linear-gradient(135deg, hsl(243 82% 58%) 0%, hsl(252 75% 50%) 50%, hsl(270 65% 45%) 100%);
+  }
+  .page-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 60%);
   }
 }

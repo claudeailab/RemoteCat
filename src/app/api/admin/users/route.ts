@@ -7,13 +7,28 @@ import { users } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { logAudit } from "@/lib/audit";
 
-const createSchema = z.object({ email: z.string().email(), displayName: z.string().optional(), password: z.string().min(8), role: z.enum(["user", "admin"]) });
-const updateSchema = z.object({ id: z.number().int().positive(), email: z.string().email().optional(), displayName: z.string().optional(), password: z.string().min(8).optional(), role: z.enum(["user", "admin"]).optional() });
+const createSchema = z.object({
+  email: z.string().email(),
+  displayName: z.string().optional(),
+  password: z.string().min(8),
+  role: z.enum(["user", "admin"]),
+  groupId: z.number().int().positive().nullable().optional(),
+});
+const updateSchema = z.object({
+  id: z.number().int().positive(),
+  email: z.string().email().optional(),
+  displayName: z.string().optional(),
+  password: z.string().min(8).optional(),
+  role: z.enum(["user", "admin"]).optional(),
+  groupId: z.number().int().positive().nullable().optional(),
+});
 
 export async function GET() {
   await requireAdmin();
-  const list = await db.select({ id: users.id, email: users.email, displayName: users.displayName, role: users.role, source: users.source })
-    .from(users).limit(100);
+  const list = await db
+    .select({ id: users.id, email: users.email, displayName: users.displayName, role: users.role, source: users.source, groupId: users.groupId })
+    .from(users)
+    .limit(200);
   return NextResponse.json({ users: list });
 }
 
@@ -22,12 +37,13 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = createSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  const { email, displayName, password, role } = parsed.data;
+  const { email, displayName, password, role, groupId } = parsed.data;
   const passwordHash = await bcrypt.hash(password, 12);
-  await db.insert(users).values({ email, displayName, passwordHash, role, source: "local" });
+  await db.insert(users).values({ email, displayName, passwordHash, role, source: "local", groupId: groupId ?? null });
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
   const parts = [`email=${email}`, `role=${role}`];
   if (displayName) parts.push(`displayName=${displayName}`);
+  if (groupId) parts.push(`groupId=${groupId}`);
   await logAudit({ userEmail: admin.email, action: "create", resource: "user", detail: parts.join("; "), ip });
   return NextResponse.json({ ok: true });
 }
@@ -37,10 +53,13 @@ export async function PUT(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const parsed = updateSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  const { id, email, displayName, password, role } = parsed.data;
+  const { id, email, displayName, password, role, groupId } = parsed.data;
 
-  const [existing] = await db.select({ email: users.email, displayName: users.displayName, role: users.role })
-    .from(users).where(eq(users.id, id)).limit(1);
+  const [existing] = await db
+    .select({ email: users.email, displayName: users.displayName, role: users.role, groupId: users.groupId })
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
 
   const passwordHash = password ? await bcrypt.hash(password, 12) : undefined;
   type UpdateSet = Parameters<ReturnType<typeof db.update<typeof users>>["set"]>[0];
@@ -49,6 +68,7 @@ export async function PUT(req: NextRequest) {
   if (displayName !== undefined) set.displayName = sql`${displayName}`;
   if (role) set.role = sql`${role}`;
   if (passwordHash) set.passwordHash = sql`${passwordHash}`;
+  if (groupId !== undefined) set.groupId = groupId;
   if (Object.keys(set).length === 0) return NextResponse.json({ ok: true });
   await db.update(users).set(set).where(eq(users.id, id));
 
@@ -57,6 +77,7 @@ export async function PUT(req: NextRequest) {
   if (displayName !== undefined && displayName !== existing?.displayName) changes.push(`displayName: ${existing?.displayName ?? "(unset)"}→${displayName || "(cleared)"}`);
   if (role && role !== existing?.role) changes.push(`role: ${existing?.role ?? "(unset)"}→${role}`);
   if (password) changes.push("password: [updated]");
+  if (groupId !== undefined && groupId !== existing?.groupId) changes.push(`groupId: ${existing?.groupId ?? "(unset)"}→${groupId ?? "(cleared)"}`);
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
   await logAudit({ userEmail: admin.email, action: "update", resource: "user", detail: changes.join("; "), ip });
@@ -68,8 +89,11 @@ export async function DELETE(req: NextRequest) {
   const id = Number(new URL(req.url).searchParams.get("id"));
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-  const [existing] = await db.select({ email: users.email, displayName: users.displayName, role: users.role })
-    .from(users).where(eq(users.id, id)).limit(1);
+  const [existing] = await db
+    .select({ email: users.email, displayName: users.displayName, role: users.role })
+    .from(users)
+    .where(eq(users.id, id))
+    .limit(1);
   await db.delete(users).where(eq(users.id, id));
 
   const parts = [`id=${id}`];

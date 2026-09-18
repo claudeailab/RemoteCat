@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Settings, Users, CreditCard, Mail, Bot, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { Features } from "@/lib/features";
 import version from "../../../version.json";
 
 function CatLogo({ className }: { className?: string }) {
@@ -20,23 +21,13 @@ function CatLogo({ className }: { className?: string }) {
   );
 }
 
-const platformItems = [
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard },
-];
-
-const systemItems = [
-  { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
-  { href: "/admin/payments", label: "Payments", icon: CreditCard },
-  { href: "/admin/m365", label: "Microsoft 365", icon: Settings },
-  { href: "/admin/email", label: "Email Settings", icon: Mail },
-  { href: "/admin/ai", label: "Artificial Intelligence", icon: Bot },
-];
-
 const SIDEBAR_BG = "linear-gradient(175deg, hsl(247,72%,19%) 0%, hsl(254,65%,13%) 55%, hsl(262,60%,9%) 100%)";
 
 interface NavItem { href: string; label: string; icon: React.ElementType }
-interface Props { user: { email: string; displayName?: string | null } }
+interface Props {
+  user: { email: string; displayName?: string | null };
+  features: Features;
+}
 
 function initials(str: string) {
   const parts = str.trim().split(/\s+/);
@@ -44,7 +35,7 @@ function initials(str: string) {
   return str.slice(0, 2).toUpperCase();
 }
 
-export default function AdminSidebar({ user }: Props) {
+export default function AdminSidebar({ user, features }: Props) {
   const path = usePathname();
 
   const navLink = (href: string, label: string, Icon: React.ElementType, exact = false) => {
@@ -62,7 +53,7 @@ export default function AdminSidebar({ user }: Props) {
       >
         <span className={cn(
           "flex h-5 w-5 items-center justify-center rounded-md transition-colors",
-          active ? "text-indigo-300" : "text-white/40 group-hover:text-white/70"
+          active ? "text-indigo-300" : "text-white/40"
         )}>
           <Icon className="h-4 w-4" />
         </span>
@@ -74,16 +65,40 @@ export default function AdminSidebar({ user }: Props) {
     );
   };
 
-  const navGroup = (title: string, items: NavItem[]) => (
-    <div className="mt-4">
-      <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">
-        {title}
-      </p>
-      <div className="flex flex-col gap-0.5">
-        {items.map(({ href, label, icon: Icon }) => navLink(href, label, Icon))}
+  const navGroup = (title: string, items: NavItem[]) => {
+    if (items.length === 0) return null;
+    return (
+      <div className="mt-4">
+        <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">
+          {title}
+        </p>
+        <div className="flex flex-col gap-0.5">
+          {items.map(({ href, label, icon: Icon }) => navLink(href, label, Icon))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  const platformItems: NavItem[] = [
+    { href: "/admin/users", label: "Users", icon: Users },
+    ...(features.subscriptions ? [{ href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard }] : []),
+  ];
+
+  const systemItems: NavItem[] = [
+    { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
+    ...(features.payments ? [{ href: "/admin/payments", label: "Payments", icon: CreditCard }] : []),
+    ...(features.m365 ? [{ href: "/admin/m365", label: "Microsoft 365", icon: Settings }] : []),
+    ...(features.email ? [{ href: "/admin/email", label: "Email Settings", icon: Mail }] : []),
+    ...(features.ai ? [{ href: "/admin/ai", label: "Artificial Intelligence", icon: Bot }] : []),
+  ];
+
+  const mobileItems = [
+    { href: "/admin", label: "Home", icon: LayoutDashboard, exact: true },
+    ...(features.m365 ? [{ href: "/admin/m365", label: "M365", icon: Settings }] : []),
+    ...(features.ai ? [{ href: "/admin/ai", label: "AI", icon: Bot }] : []),
+    { href: "/admin/users", label: "Users", icon: Users },
+    ...(features.subscriptions ? [{ href: "/admin/subscriptions", label: "Plans", icon: CreditCard }] : []),
+  ];
 
   return (
     <>
@@ -125,13 +140,7 @@ export default function AdminSidebar({ user }: Props) {
         className="md:hidden fixed bottom-0 inset-x-0 border-t z-40 flex"
         style={{ background: SIDEBAR_BG, borderColor: "rgba(255,255,255,0.08)" }}
       >
-        {[
-          { href: "/admin", label: "Home", icon: LayoutDashboard, exact: true },
-          { href: "/admin/m365", label: "M365", icon: Settings },
-          { href: "/admin/ai", label: "AI", icon: Bot },
-          { href: "/admin/users", label: "Users", icon: Users },
-          { href: "/admin/subscriptions", label: "Plans", icon: CreditCard },
-        ].map(({ href, label, icon: Icon, exact }) => {
+        {mobileItems.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? path === href : path.startsWith(href);
           return (
             <Link

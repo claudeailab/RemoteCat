@@ -1,0 +1,104 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getSetting } from "@/lib/encryption";
+import { db } from "@/lib/db";
+import { users, permission_groups } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { createSession } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
+
+function getOrigin(req: NextRequest) {
+  const proto = req.headers.get("x-forwarded-proto") ?? "https";
+  const host = req.headers.get("host") ?? "localhost";
+  return `${proto}://${host}`;
+}
+
+function decodeJwtPayload(token: string): Record<string, unknown> {
+  try {
+    const b64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    const pad = b64.length % 4 === 0 ? 0 : 4 - (b64.length % 4);
+    return JSON.parse(Buffer.from(b64 + "=".repeat(pad), "base64").toString("utf8"));
+  } catch { return {}; }
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const code = searchParams.get("code");
+  const state = searchParams.get("state");
+  const storedState = req.cookies.get("azure-oauth-state")?.value;
+
+  const fail = (e: string) => {
+    const res = NextResponse.redirect(new URL(`/login?error=${e}`, req.url));
+    res.cookies.delete("azure-oauth-state");
+    return res;
+  };
+
+  if (!code || !state || state !== storedState) return fail("auth_failed");
+
+  const clientId = await getSetting("m365_clientId");
+  const clientSecret = await getSetting("m365_clientSecret");
+  const tenantId = await getSetting("m365_tenantId");
+  if (!clientId || !clientSecret || !tenantId) return fail("m365_not_configured");
+
+  const redirectUri = `${getOrigin(req)}/api/o365/callback`;
+
+  const tokenRes = await fetch(
+    `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        client_id: clientId,
+        client_secret: clientSecret,
+        code,
+        redirect_uri: redirectUri,
+        grant_type: "authorization_code",
+        scope: "openid profile email",
+      }),
+    }
+  );
+
+  const tokenData = await tokenRes.json() as { id_token?: string };
+  if (!tokenData.id_token) return fail("token_failed");
+
+  const claims = decodeJwtPayload(tokenData.id_token);
+  const oid = claims.oid as string | undefined;
+  if (!oid) return fail("invalid_token");
+
+  const [user] = await db
+    .select({ id: users.id, email: users.email, role: users.role, groupId: users.groupId })
+    .from(users)
+    .where(eq(users.azureOid, oid))
+    .limit(1);
+
+  if (!user) return fail("not_provisioned");
+
+  if (user.groupId) {
+    const [group] = await db
+      .select({ permissions: permission_groups.permissions })
+      .from(permission_groups)
+      .where(eq(permission_groups.id, user.groupId))
+      .limit(1);
+    if (group) {
+      const perms = JSON.parse(group.permissions || "[]") as string[];
+      if (!perms.includes("access_dashboard")) return fail("no_access");
+    }
+  }
+
+  const token = await createSession(user.id);
+  await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
+  await logAudit({ userEmail: user.email, action: "login", resource: "auth", detail: "azure_sso" });
+
+  const redirectPath = user.role === "admin" ? "/admin" : "/dashboard";
+  const isSecure = req.headers.get("x-forwarded-proto") === "https";
+
+  const res = NextResponse.redirect(new URL(redirectPath, req.url));
+  res.cookies.set("remotecat-session", token, {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60,
+    path: "/",
+  });
+  res.cookies.delete("azure-oauth-state");
+  return res;
+}

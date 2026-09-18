@@ -34,10 +34,14 @@ export async function POST(req: NextRequest) {
   }
 
   const [user] = await db
-    .select({ id: users.id, email: users.email, role: users.role, passwordHash: users.passwordHash })
+    .select({ id: users.id, email: users.email, role: users.role, passwordHash: users.passwordHash, source: users.source })
     .from(users)
     .where(eq(users.email, email))
     .limit(1);
+
+  if (user?.source === "azure") {
+    return NextResponse.json({ azureLogin: true });
+  }
 
   if (!user?.passwordHash) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   const valid = await bcrypt.compare(password, user.passwordHash);
