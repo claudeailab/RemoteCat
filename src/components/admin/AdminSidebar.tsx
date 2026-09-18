@@ -32,18 +32,13 @@ export default function AdminSidebar({ user, features, platform }: Props) {
         key={href}
         href={href}
         className={cn(
-          "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all duration-150",
+          "group flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-all duration-150",
           active
-            ? "bg-white/[0.20] text-white font-medium shadow-sm"
-            : "text-white/70 hover:bg-white/[0.12] hover:text-white"
+            ? "bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] text-[var(--color-primary)] font-medium"
+            : "text-[hsl(25_5%_40%)] hover:bg-[hsl(40_6%_96%)] hover:text-[hsl(20_14%_10%)] dark:text-[hsl(30_6%_58%)] dark:hover:bg-[hsl(20_8%_16%)] dark:hover:text-[hsl(40_10%_93%)]"
         )}
       >
-        <span className={cn(
-          "flex h-5 w-5 items-center justify-center rounded-md transition-colors",
-          active ? "text-white" : "text-white/55"
-        )}>
-          <Icon className="h-4 w-4" />
-        </span>
+        <Icon className={cn("h-4 w-4 shrink-0", active ? "text-[var(--color-primary)]" : "opacity-60 group-hover:opacity-100")} />
         {label}
       </Link>
     );
@@ -52,8 +47,8 @@ export default function AdminSidebar({ user, features, platform }: Props) {
   const navGroup = (title: string, items: NavItem[]) => {
     if (items.length === 0) return null;
     return (
-      <div className="mt-4">
-        <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/40">
+      <div className="mt-5">
+        <p className="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-[hsl(25_5%_55%)] dark:text-[hsl(30_6%_42%)]">
           {title}
         </p>
         <div className="flex flex-col gap-0.5">
@@ -65,6 +60,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
 
   const systemItems: NavItem[] = [
     { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
+    { href: "/admin/users", label: "Users", icon: Users },
     ...(features.payments ? [{ href: "/admin/payments", label: "Payments", icon: CreditCard }] : []),
     ...(features.subscriptions ? [{ href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard }] : []),
     ...(features.m365 ? [{ href: "/admin/m365", label: "Microsoft 365", icon: Settings }] : []),
@@ -83,38 +79,43 @@ export default function AdminSidebar({ user, features, platform }: Props) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="sidebar-panel hidden md:flex flex-col fixed inset-y-0 left-0 w-56 z-40">
+      <aside className="sidebar-panel hidden md:flex flex-col fixed inset-y-0 left-0 w-56 z-40 border-r">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-white/[0.15]">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 shrink-0 relative">
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b">
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-lg shrink-0 relative"
+            style={{ background: "color-mix(in srgb, var(--color-primary) 12%, transparent)" }}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={iconUrl(platform.icon, "%23ffffff")}
+              src={iconUrl(platform.icon, encodeURIComponent(platform.primaryColor))}
               alt=""
               className="h-5 w-5"
               onError={e => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).nextElementSibling?.removeAttribute("hidden"); }}
             />
-            <span hidden className="text-white text-xs font-bold absolute">{platform.name.slice(0, 1).toUpperCase()}</span>
+            <span hidden className="text-[var(--color-primary)] text-xs font-bold absolute">{platform.name.slice(0, 1).toUpperCase()}</span>
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-bold text-sm tracking-tight text-white truncate">{platform.name}</span>
-            <span className="text-[10px] text-white/45 font-mono">v{version.version}</span>
+            <span className="font-semibold text-sm tracking-tight text-[hsl(20_14%_10%)] dark:text-[hsl(40_10%_93%)] truncate">{platform.name}</span>
+            <span className="text-[10px] text-[hsl(25_5%_55%)] dark:text-[hsl(30_6%_42%)] font-mono">v{version.version}</span>
           </div>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-3 flex flex-col">
           {navLink("/admin", "Dashboard", LayoutDashboard, true)}
-          {navLink("/admin/users", "Users", Users)}
           {navGroup("System", systemItems)}
         </nav>
 
         {/* User */}
-        <div className="p-3 border-t border-white/[0.15]">
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white/[0.10] transition-colors cursor-default">
-            <div className="h-7 w-7 rounded-full bg-white/25 flex items-center justify-center text-white text-[10px] font-bold shrink-0 ring-1 ring-white/30">
+        <div className="p-3 border-t">
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-[hsl(40_6%_96%)] dark:hover:bg-[hsl(20_8%_16%)] transition-colors cursor-default">
+            <div
+              className="h-7 w-7 rounded-full flex items-center justify-center text-[var(--color-primary)] text-[10px] font-bold shrink-0"
+              style={{ background: "color-mix(in srgb, var(--color-primary) 12%, transparent)" }}
+            >
               {initials(user.displayName ?? user.email)}
             </div>
-            <span className="text-xs text-white/70 truncate">{user.displayName ?? user.email}</span>
+            <span className="text-xs text-[hsl(25_5%_40%)] dark:text-[hsl(30_6%_58%)] truncate">{user.displayName ?? user.email}</span>
           </div>
         </div>
       </aside>
@@ -129,7 +130,9 @@ export default function AdminSidebar({ user, features, platform }: Props) {
               href={href}
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors",
-                active ? "text-white" : "text-white/55 hover:text-white/85"
+                active
+                  ? "text-[var(--color-primary)]"
+                  : "text-[hsl(25_5%_50%)] hover:text-[hsl(20_14%_10%)] dark:text-[hsl(30_6%_50%)] dark:hover:text-[hsl(40_10%_93%)]"
               )}
             >
               <Icon className="h-5 w-5" />

@@ -97,13 +97,10 @@
   .delay-300 { animation-delay: 300ms; }
   .delay-375 { animation-delay: 375ms; }
 
-  /* Sidebar: colored brand gradient in light, warm charcoal in dark */
+  /* Sidebar: neutral white in light, warm charcoal in dark */
   .sidebar-panel {
-    background: linear-gradient(175deg,
-      color-mix(in srgb, var(--color-primary) 80%, white) 0%,
-      var(--color-primary) 58%,
-      color-mix(in srgb, var(--color-primary) 68%, black) 100%);
-    border-color: rgba(255,255,255,0.11);
+    background: hsl(0 0% 100%);
+    border-color: hsl(30 6% 88%);
   }
   :root[data-theme="dark"] .sidebar-panel {
     background: hsl(20 8% 11%);
