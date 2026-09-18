@@ -15,7 +15,7 @@ import { Loader2, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, CheckCircle2,
 import { pageWrapper, pageInner, pageTitle } from "@/lib/ui-conventions";
 import { PLATFORM_PERMISSIONS } from "@/lib/permissions";
 import type { FeatureKey } from "@/lib/features";
-import { iconUrl, DEFAULT_ICON } from "@/lib/platform-shared";
+import { iconUrl, DEFAULT_ICON, DEFAULT_PRIMARY_COLOR } from "@/lib/platform-shared";
 
 const FEATURE_LIST: { key: FeatureKey; label: string; description: string }[] = [
   { key: "payments", label: "Payments", description: "Stripe integration and billing management" },
@@ -34,7 +34,7 @@ function ThemeButton({ value, current, label, onClick }: { value: Theme; current
       onClick={() => onClick(value)}
       className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${current === value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
     >
-      <div className={`h-10 w-16 rounded-md ${value === "light" ? "bg-white border border-border" : value === "dark" ? "bg-[hsl(200_30%_10%)]" : "bg-gradient-to-br from-white to-[hsl(200_30%_10%)]"}`} />
+      <div className={`h-10 w-16 rounded-md ${value === "light" ? "bg-white border border-border" : value === "dark" ? "bg-[hsl(0_0%_8%)]" : "bg-gradient-to-br from-white to-[hsl(0_0%_8%)]"}`} />
       <span className="text-sm font-medium">{label}</span>
     </button>
   );
@@ -485,25 +485,27 @@ function PlatformTab() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [icon, setIcon] = useState(DEFAULT_ICON);
+  const [primaryColor, setPrimaryColor] = useState(DEFAULT_PRIMARY_COLOR);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [original, setOriginal] = useState({ name: "", icon: DEFAULT_ICON });
+  const [original, setOriginal] = useState({ name: "", icon: DEFAULT_ICON, primaryColor: DEFAULT_PRIMARY_COLOR });
   const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/platform").then(r => r.json()).then(d => {
       const n = d.name ?? "";
       const ic = d.icon ?? DEFAULT_ICON;
-      setName(n); setIcon(ic);
-      setOriginal({ name: n, icon: ic });
+      const pc = d.primaryColor ?? DEFAULT_PRIMARY_COLOR;
+      setName(n); setIcon(ic); setPrimaryColor(pc);
+      setOriginal({ name: n, icon: ic, primaryColor: pc });
       setLoading(false);
     });
   }, []);
 
   useEffect(() => {
-    setDirty(name !== original.name || icon !== original.icon);
-  }, [name, icon, original]);
+    setDirty(name !== original.name || icon !== original.icon || primaryColor !== original.primaryColor);
+  }, [name, icon, primaryColor, original]);
 
   async function handleSave() {
     setSaving(true);
@@ -511,21 +513,25 @@ function PlatformTab() {
       const r = await fetch("/api/admin/settings/platform", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name || undefined, icon }),
+        body: JSON.stringify({ name: name || undefined, icon, primaryColor }),
       });
       if (!r.ok) { toast.error("Save failed"); return; }
       toast.success("Platform settings saved");
-      setOriginal({ name, icon });
+      setOriginal({ name, icon, primaryColor });
       setDirty(false);
+      document.documentElement.style.setProperty("--color-primary", primaryColor);
+      document.documentElement.style.setProperty("--color-ring", primaryColor);
       router.refresh();
     } finally { setSaving(false); }
   }
 
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
 
+  const isValidHex = /^#[0-9a-fA-F]{6}$/.test(primaryColor);
+
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">Set the name and icon used throughout the platform, login page, and browser tab.</p>
+      <p className="text-sm text-muted-foreground">Set the name, icon, and brand color used throughout the platform.</p>
       <div className="flex flex-col gap-1.5">
         <Label>Platform Name</Label>
         <Input value={name} onChange={e => setName(e.target.value)} placeholder="Platform" maxLength={80} />
@@ -546,7 +552,42 @@ function PlatformTab() {
           </div>
         </div>
       </div>
-      <Button onClick={handleSave} disabled={saving || !dirty}>
+      <div className="flex flex-col gap-2">
+        <Label>Brand Color</Label>
+        <div className="flex items-center gap-3">
+          <label className="relative cursor-pointer group shrink-0">
+            <div
+              className="h-10 w-10 rounded-lg border-2 border-border shadow-sm transition-transform group-hover:scale-105"
+              style={{ background: isValidHex ? primaryColor : DEFAULT_PRIMARY_COLOR }}
+            />
+            <input
+              type="color"
+              value={isValidHex ? primaryColor : DEFAULT_PRIMARY_COLOR}
+              onChange={e => setPrimaryColor(e.target.value)}
+              className="sr-only"
+            />
+          </label>
+          <Input
+            value={primaryColor}
+            onChange={e => {
+              const v = e.target.value;
+              if (/^#[0-9a-fA-F]{0,6}$/.test(v)) setPrimaryColor(v);
+            }}
+            className="w-28 font-mono text-sm"
+            maxLength={7}
+            placeholder="#0d9488"
+          />
+          <div
+            className="h-10 flex-1 rounded-lg flex items-center gap-2 px-3 shrink min-w-0"
+            style={{ background: isValidHex ? `linear-gradient(135deg, color-mix(in srgb, ${primaryColor} 82%, white) 0%, ${primaryColor} 60%, color-mix(in srgb, ${primaryColor} 72%, black) 100%)` : undefined }}
+          >
+            <div className="h-4 w-4 rounded bg-white/30 shrink-0" />
+            <div className="h-2 w-16 rounded bg-white/50" />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">Used for the sidebar, buttons, and accent colors.</p>
+      </div>
+      <Button onClick={handleSave} disabled={saving || !dirty || !isValidHex}>
         {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
       </Button>
       {pickerOpen && (

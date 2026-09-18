@@ -6,6 +6,7 @@ export async function GET() {
   return NextResponse.json({
     name: info.name,
     icon: info.icon,
+    primaryColor: info.primaryColor,
     iconUrl: iconUrl(info.icon),
     iconUrlWhite: iconUrl(info.icon, "%23ffffff"),
   });

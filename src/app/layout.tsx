@@ -21,8 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f0f1fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#2a2060" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#141414" },
   ],
 };
 
@@ -30,9 +30,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const cookieStore = await cookies();
   const theme = cookieStore.get("webapp-theme")?.value;
   const dataTheme = theme === "light" || theme === "dark" ? theme : undefined;
+  const platform = await getPlatformInfo();
 
   return (
-    <html lang="en" {...(dataTheme ? { "data-theme": dataTheme } : {})}>
+    <html
+      lang="en"
+      {...(dataTheme ? { "data-theme": dataTheme } : {})}
+      style={{ "--color-primary": platform.primaryColor, "--color-ring": platform.primaryColor } as React.CSSProperties}
+    >
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

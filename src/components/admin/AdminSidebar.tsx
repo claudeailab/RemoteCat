@@ -9,8 +9,6 @@ import type { PlatformInfo } from "@/lib/platform";
 import { iconUrl } from "@/lib/platform-shared";
 import version from "../../../version.json";
 
-const SIDEBAR_BG = "linear-gradient(175deg, hsl(186,85%,36%) 0%, hsl(200,80%,40%) 55%, hsl(210,78%,44%) 100%)";
-
 interface NavItem { href: string; label: string; icon: React.ElementType }
 interface Props {
   user: { email: string; displayName?: string | null };
@@ -47,9 +45,6 @@ export default function AdminSidebar({ user, features, platform }: Props) {
           <Icon className="h-4 w-4" />
         </span>
         {label}
-        {active && (
-          <span className="ml-auto h-1.5 w-1.5 rounded-full bg-white/70 shrink-0" />
-        )}
       </Link>
     );
   };
@@ -92,10 +87,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside
-        className="hidden md:flex flex-col fixed inset-y-0 left-0 w-56 z-40"
-        style={{ background: SIDEBAR_BG }}
-      >
+      <aside className="sidebar-panel hidden md:flex flex-col fixed inset-y-0 left-0 w-56 z-40">
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-white/[0.15]">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 shrink-0 relative">
@@ -132,10 +124,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
       </aside>
 
       {/* Mobile bottom bar */}
-      <nav
-        className="md:hidden fixed bottom-0 inset-x-0 border-t z-40 flex"
-        style={{ background: SIDEBAR_BG, borderColor: "rgba(255,255,255,0.15)" }}
-      >
+      <nav className="sidebar-panel md:hidden fixed bottom-0 inset-x-0 border-t z-40 flex">
         {mobileItems.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? path === href : path.startsWith(href);
           return (
