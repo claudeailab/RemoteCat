@@ -1,0 +1,41 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { requireAdmin } from "@/lib/auth";
+import { getSetting, setSetting } from "@/lib/encryption";
+import { logAudit } from "@/lib/audit";
+
+const schema = z.object({
+  clientId: z.string().optional(),
+  clientSecret: z.string().optional(),
+  liveMode: z.boolean(),
+});
+
+export async function GET() {
+  await requireAdmin();
+  const [liveMode, clientId, clientSecret] = await Promise.all([
+    getSetting("paypal_liveMode"),
+    getSetting("paypal_clientId"),
+    getSetting("paypal_clientSecret"),
+  ]);
+  return NextResponse.json({ data: {
+    liveMode: liveMode === "true",
+    clientId: clientId ?? "",
+    clientSecretSet: !!clientSecret,
+  }});
+}
+
+export async function POST(req: NextRequest) {
+  const admin = await requireAdmin();
+  const body = await req.json().catch(() => null);
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  const { clientId, clientSecret, liveMode } = parsed.data;
+
+  await setSetting("paypal_liveMode", String(liveMode));
+  if (clientId !== undefined) await setSetting("paypal_clientId", clientId);
+  if (clientSecret) await setSetting("paypal_clientSecret", clientSecret);
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  await logAudit({ userEmail: admin.email, action: "update", resource: "settings.paypal", ip });
+  return NextResponse.json({ ok: true });
+}
