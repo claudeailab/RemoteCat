@@ -33,8 +33,16 @@ const systemItems = [
   { href: "/admin/ai", label: "Artificial Intelligence", icon: Bot },
 ];
 
+const SIDEBAR_BG = "linear-gradient(175deg, hsl(247,72%,19%) 0%, hsl(254,65%,13%) 55%, hsl(262,60%,9%) 100%)";
+
 interface NavItem { href: string; label: string; icon: React.ElementType }
 interface Props { user: { email: string; displayName?: string | null } }
+
+function initials(str: string) {
+  const parts = str.trim().split(/\s+/);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return str.slice(0, 2).toUpperCase();
+}
 
 export default function AdminSidebar({ user }: Props) {
   const path = usePathname();
@@ -46,24 +54,32 @@ export default function AdminSidebar({ user }: Props) {
         key={href}
         href={href}
         className={cn(
-          "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors",
+          "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-all duration-150",
           active
-            ? "bg-primary text-primary-foreground font-medium"
-            : "text-foreground/70 hover:bg-accent hover:text-accent-foreground"
+            ? "bg-white/[0.13] text-white font-medium shadow-sm"
+            : "text-white/55 hover:bg-white/[0.07] hover:text-white/90"
         )}
       >
-        <Icon className="h-4 w-4 shrink-0" />
+        <span className={cn(
+          "flex h-5 w-5 items-center justify-center rounded-md transition-colors",
+          active ? "text-indigo-300" : "text-white/40 group-hover:text-white/70"
+        )}>
+          <Icon className="h-4 w-4" />
+        </span>
         {label}
+        {active && (
+          <span className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-300 shrink-0" />
+        )}
       </Link>
     );
   };
 
   const navGroup = (title: string, items: NavItem[]) => (
-    <div className="mt-3">
-      <p className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <div className="mt-4">
+      <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">
         {title}
       </p>
-      <div className="mt-1 flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5">
         {items.map(({ href, label, icon: Icon }) => navLink(href, label, Icon))}
       </div>
     </div>
@@ -74,34 +90,43 @@ export default function AdminSidebar({ user }: Props) {
       {/* Desktop sidebar */}
       <aside
         className="hidden md:flex flex-col fixed inset-y-0 left-0 w-56 z-40"
-        style={{ background: "var(--color-sidebar)", borderRight: "1px solid var(--color-sidebar-border)" }}
+        style={{ background: SIDEBAR_BG }}
       >
-        <div className="flex items-center gap-2.5 px-4 py-4 border-b" style={{ borderColor: "var(--color-sidebar-border)" }}>
-          <CatLogo className="h-7 w-7 text-primary shrink-0" />
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 px-4 py-4 border-b border-white/[0.08]">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-400/20 shrink-0">
+            <CatLogo className="h-5 w-5 text-indigo-300" />
+          </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-bold text-sm tracking-tight truncate">RemoteCat</span>
-            <span className="text-xs text-muted-foreground">v{version.version}</span>
+            <span className="font-bold text-sm tracking-tight text-white truncate">RemoteCat</span>
+            <span className="text-[10px] text-white/35 font-mono">v{version.version}</span>
           </div>
         </div>
 
-        <nav className="flex-1 overflow-y-auto p-3 flex flex-col gap-0.5">
+        <nav className="flex-1 overflow-y-auto p-3 flex flex-col">
           {navLink("/admin", "Dashboard", LayoutDashboard, true)}
           {navGroup("Platform", platformItems)}
           {navGroup("System", systemItems)}
         </nav>
 
-        <div
-          className="p-4 border-t text-xs text-muted-foreground truncate"
-          style={{ borderColor: "var(--color-sidebar-border)" }}
-        >
-          {user.displayName ?? user.email}
+        {/* User */}
+        <div className="p-3 border-t border-white/[0.08]">
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white/[0.06] transition-colors cursor-default">
+            <div className="h-7 w-7 rounded-full bg-indigo-500/40 flex items-center justify-center text-white text-[10px] font-bold shrink-0 ring-1 ring-indigo-300/30">
+              {initials(user.displayName ?? user.email)}
+            </div>
+            <span className="text-xs text-white/60 truncate">{user.displayName ?? user.email}</span>
+          </div>
         </div>
       </aside>
 
       {/* Mobile bottom bar */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 border-t bg-background z-40 flex" style={{ borderColor: "var(--color-sidebar-border)" }}>
+      <nav
+        className="md:hidden fixed bottom-0 inset-x-0 border-t z-40 flex"
+        style={{ background: SIDEBAR_BG, borderColor: "rgba(255,255,255,0.08)" }}
+      >
         {[
-          { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+          { href: "/admin", label: "Home", icon: LayoutDashboard, exact: true },
           { href: "/admin/m365", label: "M365", icon: Settings },
           { href: "/admin/ai", label: "AI", icon: Bot },
           { href: "/admin/users", label: "Users", icon: Users },
@@ -114,7 +139,7 @@ export default function AdminSidebar({ user }: Props) {
               href={href}
               className={cn(
                 "flex flex-1 flex-col items-center gap-1 py-2 text-xs transition-colors",
-                active ? "text-primary" : "text-muted-foreground"
+                active ? "text-indigo-300" : "text-white/45 hover:text-white/80"
               )}
             >
               <Icon className="h-5 w-5" />
