@@ -53,6 +53,7 @@ jobs:
             public
           retention-days: 1
           compression-level: 1
+          include-hidden-files: true
 
   docker:
     needs: build-app
