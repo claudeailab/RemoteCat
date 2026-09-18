@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       secure: ssl === "true",
       auth: user && password ? { user, pass: password } : undefined,
     });
-    await transporter.sendMail({ from: `${fromName} <${fromEmail}>`, to: parsed.data.to, subject: "RemoteCat Test Email", text: "This is a test email from RemoteCat." });
+    await transporter.sendMail({ from: `${fromName} <${fromEmail}>`, to: parsed.data.to, subject: "Test Email", text: "This is a test email from the platform." });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "Failed to send email" }, { status: 400 });

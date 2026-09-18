@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: hsl(245 40% 97%);
-  --color-foreground: hsl(224 71% 4%);
+  --color-background: hsl(230 40% 98%);
+  --color-foreground: hsl(224 50% 15%);
   --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(224 71% 4%);
+  --color-card-foreground: hsl(224 50% 15%);
   --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(224 71% 4%);
-  --color-primary: hsl(243 82% 60%);
+  --color-popover-foreground: hsl(224 50% 15%);
+  --color-primary: hsl(249 85% 62%);
   --color-primary-foreground: hsl(0 0% 100%);
-  --color-secondary: hsl(243 50% 96%);
-  --color-secondary-foreground: hsl(243 75% 30%);
-  --color-muted: hsl(240 14% 94%);
-  --color-muted-foreground: hsl(220 9% 46%);
-  --color-accent: hsl(243 50% 96%);
-  --color-accent-foreground: hsl(243 75% 30%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(240 10% 88%);
-  --color-input: hsl(240 10% 88%);
-  --color-ring: hsl(243 82% 60%);
-  --color-sidebar: hsl(247 72% 19%);
-  --color-sidebar-border: hsl(248 50% 26%);
+  --color-secondary: hsl(249 60% 95%);
+  --color-secondary-foreground: hsl(249 60% 35%);
+  --color-muted: hsl(230 30% 95%);
+  --color-muted-foreground: hsl(224 20% 50%);
+  --color-accent: hsl(249 60% 95%);
+  --color-accent-foreground: hsl(249 60% 35%);
+  --color-destructive: hsl(0 84% 58%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border: hsl(230 25% 88%);
+  --color-input: hsl(230 25% 88%);
+  --color-ring: hsl(249 85% 62%);
+  --color-sidebar: hsl(249 85% 62%);
+  --color-sidebar-border: hsl(249 75% 70%);
   --radius: 0.6rem;
 
   --animate-fade-in: fade-in 0.35s ease-out both;
@@ -50,54 +50,28 @@
   to   { background-position: 200% center; }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-background: hsl(240 32% 9%);
-    --color-foreground: hsl(220 18% 92%);
-    --color-card: hsl(240 28% 14%);
-    --color-card-foreground: hsl(220 18% 92%);
-    --color-popover: hsl(240 28% 14%);
-    --color-popover-foreground: hsl(220 18% 92%);
-    --color-primary: hsl(252 88% 72%);
-    --color-primary-foreground: hsl(0 0% 100%);
-    --color-secondary: hsl(240 24% 20%);
-    --color-secondary-foreground: hsl(220 18% 92%);
-    --color-muted: hsl(240 24% 18%);
-    --color-muted-foreground: hsl(240 12% 64%);
-    --color-accent: hsl(240 24% 21%);
-    --color-accent-foreground: hsl(220 18% 92%);
-    --color-destructive: hsl(0 68% 56%);
-    --color-destructive-foreground: hsl(0 0% 98%);
-    --color-border: hsl(240 22% 22%);
-    --color-input: hsl(240 24% 18%);
-    --color-ring: hsl(252 88% 72%);
-    --color-sidebar: hsl(244 72% 10%);
-    --color-sidebar-border: hsl(244 55% 18%);
-  }
-}
-
 :root[data-theme="dark"] {
-  --color-background: hsl(240 32% 9%);
-  --color-foreground: hsl(220 18% 92%);
-  --color-card: hsl(240 28% 14%);
-  --color-card-foreground: hsl(220 18% 92%);
-  --color-popover: hsl(240 28% 14%);
-  --color-popover-foreground: hsl(220 18% 92%);
-  --color-primary: hsl(252 88% 72%);
+  --color-background: hsl(249 35% 18%);
+  --color-foreground: hsl(230 30% 92%);
+  --color-card: hsl(249 30% 24%);
+  --color-card-foreground: hsl(230 30% 92%);
+  --color-popover: hsl(249 30% 24%);
+  --color-popover-foreground: hsl(230 30% 92%);
+  --color-primary: hsl(249 100% 72%);
   --color-primary-foreground: hsl(0 0% 100%);
-  --color-secondary: hsl(240 24% 20%);
-  --color-secondary-foreground: hsl(220 18% 92%);
-  --color-muted: hsl(240 24% 18%);
-  --color-muted-foreground: hsl(240 12% 64%);
-  --color-accent: hsl(240 24% 21%);
-  --color-accent-foreground: hsl(220 18% 92%);
-  --color-destructive: hsl(0 68% 56%);
-  --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(240 22% 22%);
-  --color-input: hsl(240 24% 18%);
-  --color-ring: hsl(252 88% 72%);
-  --color-sidebar: hsl(244 72% 10%);
-  --color-sidebar-border: hsl(244 55% 18%);
+  --color-secondary: hsl(249 30% 32%);
+  --color-secondary-foreground: hsl(230 30% 92%);
+  --color-muted: hsl(249 28% 28%);
+  --color-muted-foreground: hsl(249 20% 68%);
+  --color-accent: hsl(249 30% 32%);
+  --color-accent-foreground: hsl(230 30% 92%);
+  --color-destructive: hsl(0 72% 62%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border: hsl(249 25% 32%);
+  --color-input: hsl(249 28% 28%);
+  --color-ring: hsl(249 100% 72%);
+  --color-sidebar: hsl(249 70% 28%);
+  --color-sidebar-border: hsl(249 60% 38%);
 }
 
 @layer base {
@@ -106,18 +80,14 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
-    background-image: radial-gradient(ellipse 130% 70% at 60% -10%, hsl(245 60% 93%) 0%, transparent 55%);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) body {
-      background-image: radial-gradient(ellipse 140% 80% at 50% -5%, hsl(252 50% 20%) 0%, transparent 55%);
-    }
+    background-image:
+      radial-gradient(ellipse 100% 50% at 10% 0%, hsl(249 80% 95%) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 40% at 90% 100%, hsl(280 60% 95%) 0%, transparent 60%);
   }
   :root[data-theme="dark"] body {
-    background-image: radial-gradient(ellipse 140% 80% at 50% -5%, hsl(252 50% 20%) 0%, transparent 55%);
-  }
-  :root[data-theme="light"] body {
-    background-image: radial-gradient(ellipse 130% 70% at 60% -10%, hsl(245 60% 93%) 0%, transparent 55%);
+    background-image:
+      radial-gradient(ellipse 100% 50% at 10% 0%, hsl(249 50% 22%) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 40% at 90% 100%, hsl(280 45% 22%) 0%, transparent 60%);
   }
 }
 
@@ -132,16 +102,16 @@
   }
   .card-hover:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 30px -8px rgba(79, 70, 229, 0.22), 0 4px 12px -4px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 10px 30px -8px rgba(99, 66, 229, 0.22), 0 4px 12px -4px rgba(99, 66, 229, 0.10);
   }
   .page-header {
     @apply relative overflow-hidden rounded-2xl p-5 mb-6 text-white;
-    background: linear-gradient(135deg, hsl(243 82% 58%) 0%, hsl(252 75% 50%) 50%, hsl(270 65% 45%) 100%);
+    background: linear-gradient(135deg, hsl(249 85% 62%) 0%, hsl(262 78% 58%) 50%, hsl(280 70% 55%) 100%);
   }
   .page-header::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 80% 20%, rgba(255,255,255,0.12) 0%, transparent 60%);
+    background: radial-gradient(ellipse 80% 60% at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 60%);
   }
 }

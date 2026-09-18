@@ -4,26 +4,30 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import { Toaster } from "sonner";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { getPlatformInfo } from "@/lib/platform";
 
 const geist = Geist({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "RemoteCat",
-  description: "RemoteCat application",
-  manifest: "/manifest.json",
-  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const platform = await getPlatformInfo();
+  return {
+    title: platform.name,
+    description: `${platform.name} application`,
+    manifest: "/manifest.json",
+    icons: { icon: platform.logoUrl, apple: platform.logoUrl },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f6fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#1e2130" },
+    { media: "(prefers-color-scheme: light)", color: "#f0f1fa" },
+    { media: "(prefers-color-scheme: dark)", color: "#2a2060" },
   ],
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
-  const theme = cookieStore.get("remotecat-theme")?.value;
+  const theme = cookieStore.get("webapp-theme")?.value;
   const dataTheme = theme === "light" || theme === "dark" ? theme : undefined;
 
   return (

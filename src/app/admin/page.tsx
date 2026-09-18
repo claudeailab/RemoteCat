@@ -54,10 +54,7 @@ export default async function AdminDashboardPage() {
           <div className="absolute bottom-0 left-24 h-20 w-20 rounded-full bg-white/[0.07]" />
           <ShieldCheck className="relative h-8 w-8 mb-3 text-indigo-200" />
           <h1 className="relative text-2xl font-bold tracking-tight">{greeting(user.displayName ?? user.email)}</h1>
-          <p className="relative text-white/70 text-sm mt-1">RemoteCat Admin Panel · v{
-            // version shown in sidebar only — omit here
-            ""
-          }Everything looks good.</p>
+          <p className="relative text-white/70 text-sm mt-1">Admin Panel · Everything looks good.</p>
         </div>
 
         {/* Stat cards */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -120,6 +121,7 @@ function AuditTab() {
 }
 
 function FeaturesTab() {
+  const router = useRouter();
   const [features, setFeatures] = useState<Record<FeatureKey, boolean>>({
     payments: true, m365: true, email: true, ai: true, subscriptions: true,
   });
@@ -147,7 +149,8 @@ function FeaturesTab() {
         setFeatures(f => ({ ...f, [key]: prev }));
         toast.error("Failed to update feature");
       } else {
-        toast.success(`${value ? "Enabled" : "Disabled"} — reload to update navigation`);
+        toast.success(`${value ? "Enabled" : "Disabled"}`);
+        router.refresh();
       }
     } finally { setSaving(null); }
   }
@@ -361,12 +364,83 @@ function PermissionsTab() {
   );
 }
 
+function PlatformTab() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
+  const [original, setOriginal] = useState({ name: "", logoUrl: "" });
+
+  useEffect(() => {
+    fetch("/api/platform").then(r => r.json()).then(d => {
+      const n = d.name ?? "";
+      const l = d.logoUrl ?? "";
+      setName(n); setLogoUrl(l);
+      setOriginal({ name: n, logoUrl: l });
+      setLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    setDirty(name !== original.name || logoUrl !== original.logoUrl);
+  }, [name, logoUrl, original]);
+
+  async function handleSave() {
+    setSaving(true);
+    try {
+      const r = await fetch("/api/admin/settings/platform", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name || undefined, logoUrl: logoUrl || undefined }),
+      });
+      if (!r.ok) { toast.error("Save failed"); return; }
+      toast.success("Platform settings saved");
+      setOriginal({ name, logoUrl });
+      setDirty(false);
+      router.refresh();
+    } finally { setSaving(false); }
+  }
+
+  if (loading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
+
+  const DEFAULT_LOGO = "https://api.iconify.design/solar:layers-bold.svg?color=%236366f1";
+
+  return (
+    <div className="space-y-6">
+      <p className="text-sm text-muted-foreground">Set the name and logo that appear throughout the platform.</p>
+      <div className="flex flex-col gap-1.5">
+        <Label>Platform Name</Label>
+        <Input value={name} onChange={e => setName(e.target.value)} placeholder="Platform" maxLength={80} />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label>Logo URL</Label>
+        <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder={DEFAULT_LOGO} />
+        <p className="text-xs text-muted-foreground">Used in the sidebar, login page, and as the favicon. Leave blank for the default icon.</p>
+      </div>
+      {(logoUrl || DEFAULT_LOGO) && (
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logoUrl || DEFAULT_LOGO} alt="preview" className="h-6 w-6" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+          </div>
+          <span className="text-sm text-muted-foreground">Logo preview</span>
+        </div>
+      )}
+      <Button onClick={handleSave} disabled={saving || !dirty}>
+        {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
+      </Button>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const [theme, setTheme] = useState<Theme>("system");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const stored = document.cookie.match(/remotecat-theme=([^;]+)/)?.[1] as Theme | undefined;
+    const stored = document.cookie.match(/webapp-theme=([^;]+)/)?.[1] as Theme | undefined;
     if (stored === "light" || stored === "dark" || stored === "system") setTheme(stored);
   }, []);
 
@@ -388,13 +462,17 @@ export default function SettingsPage() {
     <div className={pageWrapper}>
       <div className={pageInner}>
         <h1 className={pageTitle}>Settings</h1>
-        <Tabs defaultValue="visual" className="mt-6">
+        <Tabs defaultValue="platform" className="mt-6">
           <TabsList>
+            <TabsTrigger value="platform">Platform</TabsTrigger>
             <TabsTrigger value="visual">Visual</TabsTrigger>
             <TabsTrigger value="features">Features</TabsTrigger>
             <TabsTrigger value="permissions">Permissions</TabsTrigger>
             <TabsTrigger value="audit">Audit</TabsTrigger>
           </TabsList>
+          <TabsContent value="platform">
+            <Card><CardContent className="pt-6"><PlatformTab /></CardContent></Card>
+          </TabsContent>
           <TabsContent value="visual">
             <Card>
               <CardContent className="pt-6 space-y-4">

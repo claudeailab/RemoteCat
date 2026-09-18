@@ -18,7 +18,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   no_access: "Your account does not have access to this platform.",
 };
 
-function LoginForm() {
+function LoginForm({ platformName }: { platformName: string }) {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,20 +69,32 @@ function LoginForm() {
   );
 }
 
-export default function LoginPage() {
+function LoginPageInner() {
+  const [platformName, setPlatformName] = useState("Platform");
+
+  useEffect(() => {
+    fetch("/api/platform").then(r => r.json()).then(d => {
+      if (d.name) setPlatformName(d.name);
+    }).catch(() => {});
+  }, []);
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">RemoteCat</CardTitle>
+          <CardTitle className="text-2xl">{platformName}</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <Suspense fallback={<div className="flex justify-center py-4"><Loader2 className="h-5 w-5 animate-spin" /></div>}>
-            <LoginForm />
+            <LoginForm platformName={platformName} />
           </Suspense>
         </CardContent>
       </Card>
     </div>
   );
+}
+
+export default function LoginPage() {
+  return <LoginPageInner />;
 }

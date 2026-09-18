@@ -79,7 +79,7 @@ export default function M365Page() {
                       <div className="space-y-2">
                         <p>In the <strong>Azure Portal</strong>, go to <strong>Microsoft Entra ID → App registrations → New registration</strong>.</p>
                         <ul className="space-y-1 pl-2">
-                          <li><span className="text-muted-foreground">· </span><strong>Name:</strong> RemoteCat</li>
+                          <li><span className="text-muted-foreground">· </span><strong>Name:</strong> your platform name</li>
                           <li><span className="text-muted-foreground">· </span><strong>Supported account types:</strong> Accounts in any organizational directory (Multitenant)</li>
                           <li className="flex flex-wrap items-center gap-1.5">
                             <span className="text-muted-foreground">· </span><strong>Redirect URI:</strong>
@@ -118,7 +118,7 @@ export default function M365Page() {
                       <div className="space-y-2">
                         <p>Go to <strong>Certificates &amp; secrets → Client secrets → New client secret</strong>.</p>
                         <ul className="space-y-1 pl-2">
-                          <li><span className="text-muted-foreground">· </span><strong>Description:</strong> RemoteCat</li>
+                          <li><span className="text-muted-foreground">· </span><strong>Description:</strong> your platform name</li>
                           <li><span className="text-muted-foreground">· </span><strong>Expires:</strong> 24 months</li>
                         </ul>
                         <p>Copy the <strong>Value</strong> (not the Secret ID) and paste it in the form. <span className="text-orange-500 font-medium">The value is only shown once.</span></p>
@@ -139,7 +139,7 @@ export default function M365Page() {
           </Dialog>
         </div>
         <Card>
-          <CardHeader><CardTitle>Azure AD Configuration</CardTitle><CardDescription>Connect RemoteCat to your Microsoft 365 tenant.</CardDescription></CardHeader>
+          <CardHeader><CardTitle>Azure AD Configuration</CardTitle><CardDescription>Connect this platform to your Microsoft 365 tenant.</CardDescription></CardHeader>
           <CardContent>
             <form onSubmit={handleSave} className={fieldGap}>
               <div className="flex flex-col gap-1.5">

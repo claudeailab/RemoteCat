@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   await logAudit({ userEmail: user.email, action: "login", resource: "auth", ip });
 
   const res = NextResponse.json({ redirect: redirectPath });
-  res.cookies.set("remotecat-session", token, {
+  res.cookies.set("webapp-session", token, {
     httpOnly: true,
     secure: isSecure,
     sameSite: "lax",
