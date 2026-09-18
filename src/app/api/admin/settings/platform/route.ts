@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { setPlatformInfo } from "@/lib/platform";
 import { z } from "zod";
@@ -15,6 +16,8 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   await setPlatformInfo(parsed.data);
+  revalidatePath("/admin", "layout");
+  revalidatePath("/", "layout");
   const ip = req.headers.get("x-forwarded-for") ?? "unknown";
   await logAudit({ action: "update", resource: "platform", ip });
   return NextResponse.json({ ok: true });

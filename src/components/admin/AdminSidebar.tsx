@@ -98,9 +98,15 @@ export default function AdminSidebar({ user, features, platform }: Props) {
       >
         {/* Logo */}
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-white/[0.15]">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 shrink-0 relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={iconUrl(platform.icon, "%23ffffff")} alt="" className="h-5 w-5" />
+            <img
+              src={iconUrl(platform.icon, "%23ffffff")}
+              alt=""
+              className="h-5 w-5"
+              onError={e => { (e.target as HTMLImageElement).style.display = "none"; (e.target as HTMLImageElement).nextElementSibling?.removeAttribute("hidden"); }}
+            />
+            <span hidden className="text-white text-xs font-bold absolute">{platform.name.slice(0, 1).toUpperCase()}</span>
           </div>
           <div className="flex flex-col min-w-0">
             <span className="font-bold text-sm tracking-tight text-white truncate">{platform.name}</span>
