@@ -6,6 +6,7 @@ import { LayoutDashboard, Settings, Users, CreditCard, Mail, Bot, SlidersHorizon
 import { cn } from "@/lib/utils";
 import type { Features } from "@/lib/features";
 import type { PlatformInfo } from "@/lib/platform";
+import { iconUrl } from "@/lib/platform";
 import version from "../../../version.json";
 
 const SIDEBAR_BG = "linear-gradient(175deg, hsl(186,85%,36%) 0%, hsl(200,80%,40%) 55%, hsl(210,78%,44%) 100%)";
@@ -99,7 +100,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-white/[0.15]">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={platform.logoUrl} alt="" className="h-5 w-5" />
+            <img src={iconUrl(platform.icon, "%23ffffff")} alt="" className="h-5 w-5" />
           </div>
           <div className="flex flex-col min-w-0">
             <span className="font-bold text-sm tracking-tight text-white truncate">{platform.name}</span>

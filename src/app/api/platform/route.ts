@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import { getPlatformInfo } from "@/lib/platform";
+import { getPlatformInfo, iconUrl } from "@/lib/platform";
 
 export async function GET() {
   const info = await getPlatformInfo();
-  return NextResponse.json(info);
+  return NextResponse.json({
+    name: info.name,
+    icon: info.icon,
+    iconUrl: iconUrl(info.icon),
+    iconUrlWhite: iconUrl(info.icon, "%23ffffff"),
+  });
 }

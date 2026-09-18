@@ -71,10 +71,12 @@ function LoginForm({ platformName }: { platformName: string }) {
 
 function LoginPageInner() {
   const [platformName, setPlatformName] = useState("Platform");
+  const [iconUrl, setIconUrl] = useState("");
 
   useEffect(() => {
     fetch("/api/platform").then(r => r.json()).then(d => {
       if (d.name) setPlatformName(d.name);
+      if (d.iconUrl) setIconUrl(d.iconUrl);
     }).catch(() => {});
   }, []);
 
@@ -82,6 +84,12 @@ function LoginPageInner() {
     <div className="flex min-h-screen items-center justify-center px-4 py-12">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
+          {iconUrl && (
+            <div className="flex justify-center mb-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={iconUrl} alt="" className="h-10 w-10" />
+            </div>
+          )}
           <CardTitle className="text-2xl">{platformName}</CardTitle>
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>

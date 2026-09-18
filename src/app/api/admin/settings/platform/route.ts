@@ -6,7 +6,7 @@ import { logAudit } from "@/lib/audit";
 
 const schema = z.object({
   name: z.string().min(1).max(80).optional(),
-  logoUrl: z.string().max(500).optional(),
+  icon: z.string().max(120).optional(),
 });
 
 export async function POST(req: NextRequest) {

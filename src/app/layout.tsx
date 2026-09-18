@@ -4,17 +4,18 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import { Toaster } from "sonner";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
-import { getPlatformInfo } from "@/lib/platform";
+import { getPlatformInfo, iconUrl } from "@/lib/platform";
 
 const geist = Geist({ subsets: ["latin"] });
 
 export async function generateMetadata(): Promise<Metadata> {
   const platform = await getPlatformInfo();
+  const favicon = iconUrl(platform.icon);
   return {
     title: platform.name,
     description: `${platform.name} application`,
     manifest: "/manifest.json",
-    icons: { icon: platform.logoUrl, apple: platform.logoUrl },
+    icons: { icon: favicon, apple: favicon },
   };
 }
 

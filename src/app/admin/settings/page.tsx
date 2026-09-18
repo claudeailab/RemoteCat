@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,10 +11,11 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, CheckCircle2, Search } from "lucide-react";
 import { pageWrapper, pageInner, pageTitle } from "@/lib/ui-conventions";
 import { PLATFORM_PERMISSIONS } from "@/lib/permissions";
 import type { FeatureKey } from "@/lib/features";
+import { iconUrl, DEFAULT_ICON } from "@/lib/platform";
 
 const FEATURE_LIST: { key: FeatureKey; label: string; description: string }[] = [
   { key: "payments", label: "Payments", description: "Stripe integration and billing management" },
@@ -364,28 +365,145 @@ function PermissionsTab() {
   );
 }
 
+const ICON_SETS = [
+  { label: "All", value: "" },
+  { label: "HugeIcons", value: "hugeicons" },
+  { label: "Solar", value: "solar" },
+  { label: "Material", value: "mdi" },
+  { label: "Phosphor", value: "ph" },
+  { label: "Lucide", value: "lucide" },
+  { label: "Tabler", value: "tabler" },
+];
+
+const FEATURED_ICONS = [
+  "solar:layers-bold", "solar:box-bold", "solar:planet-bold", "solar:rocket-bold",
+  "solar:star-bold", "solar:diamond-bold", "solar:crown-bold", "solar:home-bold",
+  "solar:settings-bold", "solar:shield-bold", "solar:chart-bold", "solar:cloud-bold",
+  "mdi:application", "mdi:rocket-launch", "mdi:star-circle", "mdi:cube-outline",
+  "mdi:shield-check", "mdi:cloud-outline", "mdi:home-variant", "mdi:cog",
+  "ph:app-window-bold", "ph:rocket-bold", "ph:planet-bold", "ph:cube-bold",
+  "ph:star-bold", "ph:house-bold", "ph:shield-check-bold", "ph:cloud-bold",
+  "tabler:apps", "tabler:rocket", "tabler:star", "tabler:home",
+  "lucide:layers", "lucide:box", "lucide:star", "lucide:home",
+];
+
+function IconPickerDialog({ value, onSelect, onClose }: {
+  value: string;
+  onSelect: (icon: string) => void;
+  onClose: () => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [setFilter, setSetFilter] = useState("");
+  const [icons, setIcons] = useState<string[]>(FEATURED_ICONS);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!query.trim()) {
+      setIcons(FEATURED_ICONS);
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({ query: query.trim(), limit: "60" });
+        if (setFilter) params.set("prefixes", setFilter);
+        const r = await fetch(`https://api.iconify.design/search?${params}`);
+        const d = await r.json();
+        setIcons(d.icons ?? []);
+      } catch { setIcons([]); }
+      finally { setLoading(false); }
+    }, 350);
+  }, [query, setFilter]);
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader><DialogTitle>Choose an Icon</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              className="pl-8"
+              placeholder="Search 200,000+ icons…"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              autoFocus
+            />
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {ICON_SETS.map(s => (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => setSetFilter(s.value)}
+                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${setFilter === s.value ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"}`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          <div className="min-h-[280px]">
+            {loading ? (
+              <div className="flex justify-center items-center h-40"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            ) : icons.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-12">No icons found. Try a different search.</p>
+            ) : (
+              <div className="grid grid-cols-8 sm:grid-cols-10 gap-1 max-h-72 overflow-y-auto pr-1">
+                {icons.map(id => (
+                  <button
+                    key={id}
+                    type="button"
+                    title={id}
+                    onClick={() => { onSelect(id); onClose(); }}
+                    className={`flex flex-col items-center justify-center p-2 rounded-lg border transition-all hover:border-primary/50 hover:bg-primary/5 group ${id === value ? "border-primary bg-primary/10" : "border-transparent"}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={iconUrl(id)}
+                      alt={id}
+                      className="h-6 w-6"
+                      onError={e => { (e.target as HTMLImageElement).style.opacity = "0.2"; }}
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {!query && <p className="text-xs text-muted-foreground text-center">Showing suggestions — type to search all icons from HugeIcons, Material, Phosphor, Lucide, Tabler &amp; more</p>}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function PlatformTab() {
   const router = useRouter();
   const [name, setName] = useState("");
-  const [logoUrl, setLogoUrl] = useState("");
+  const [icon, setIcon] = useState(DEFAULT_ICON);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [original, setOriginal] = useState({ name: "", logoUrl: "" });
+  const [original, setOriginal] = useState({ name: "", icon: DEFAULT_ICON });
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/platform").then(r => r.json()).then(d => {
       const n = d.name ?? "";
-      const l = d.logoUrl ?? "";
-      setName(n); setLogoUrl(l);
-      setOriginal({ name: n, logoUrl: l });
+      const ic = d.icon ?? DEFAULT_ICON;
+      setName(n); setIcon(ic);
+      setOriginal({ name: n, icon: ic });
       setLoading(false);
     });
   }, []);
 
   useEffect(() => {
-    setDirty(name !== original.name || logoUrl !== original.logoUrl);
-  }, [name, logoUrl, original]);
+    setDirty(name !== original.name || icon !== original.icon);
+  }, [name, icon, original]);
 
   async function handleSave() {
     setSaving(true);
@@ -393,11 +511,11 @@ function PlatformTab() {
       const r = await fetch("/api/admin/settings/platform", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name || undefined, logoUrl: logoUrl || undefined }),
+        body: JSON.stringify({ name: name || undefined, icon }),
       });
       if (!r.ok) { toast.error("Save failed"); return; }
       toast.success("Platform settings saved");
-      setOriginal({ name, logoUrl });
+      setOriginal({ name, icon });
       setDirty(false);
       router.refresh();
     } finally { setSaving(false); }
@@ -405,32 +523,39 @@ function PlatformTab() {
 
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
 
-  const DEFAULT_LOGO = "https://api.iconify.design/solar:layers-bold.svg?color=%230d9488";
-
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">Set the name and logo that appear throughout the platform.</p>
+      <p className="text-sm text-muted-foreground">Set the name and icon used throughout the platform, login page, and browser tab.</p>
       <div className="flex flex-col gap-1.5">
         <Label>Platform Name</Label>
         <Input value={name} onChange={e => setName(e.target.value)} placeholder="Platform" maxLength={80} />
       </div>
-      <div className="flex flex-col gap-1.5">
-        <Label>Logo URL</Label>
-        <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder={DEFAULT_LOGO} />
-        <p className="text-xs text-muted-foreground">Used in the sidebar, login page, and as the favicon. Leave blank for the default icon.</p>
-      </div>
-      {(logoUrl || DEFAULT_LOGO) && (
+      <div className="flex flex-col gap-2">
+        <Label>Icon</Label>
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="h-14 w-14 rounded-xl border-2 border-border bg-muted/30 flex items-center justify-center shrink-0">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoUrl || DEFAULT_LOGO} alt="preview" className="h-6 w-6" onError={e => { (e.target as HTMLImageElement).style.display = "none"; }} />
+            <img src={iconUrl(icon)} alt="" className="h-9 w-9" />
           </div>
-          <span className="text-sm text-muted-foreground">Logo preview</span>
+          <div>
+            <p className="text-sm font-medium font-mono">{icon}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Powered by Iconify · 200,000+ icons</p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => setPickerOpen(true)}>
+              Change Icon
+            </Button>
+          </div>
         </div>
-      )}
+      </div>
       <Button onClick={handleSave} disabled={saving || !dirty}>
         {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
       </Button>
+      {pickerOpen && (
+        <IconPickerDialog
+          value={icon}
+          onSelect={id => { setIcon(id); }}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </div>
   );
 }
