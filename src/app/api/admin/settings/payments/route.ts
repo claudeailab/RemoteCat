@@ -13,8 +13,18 @@ const schema = z.object({
 
 export async function GET() {
   await requireAdmin();
-  const liveMode = await getSetting("stripe_liveMode");
-  return NextResponse.json({ data: { liveMode: liveMode === "true" } });
+  const [liveMode, publishableKey, secretKey, webhookSecret] = await Promise.all([
+    getSetting("stripe_liveMode"),
+    getSetting("stripe_publishableKey"),
+    getSetting("stripe_secretKey"),
+    getSetting("stripe_webhookSecret"),
+  ]);
+  return NextResponse.json({ data: {
+    liveMode: liveMode === "true",
+    publishableKey: publishableKey ?? "",
+    secretKeySet: !!secretKey,
+    webhookSecretSet: !!webhookSecret,
+  }});
 }
 
 export async function POST(req: NextRequest) {

@@ -18,7 +18,8 @@ export async function GET() {
   const tenantId = await getSetting("m365_tenantId");
   const expiryDate = await getSetting("m365_expiryDate");
   const reminderDays = await getSetting("m365_reminderDays");
-  return NextResponse.json({ data: { clientId: clientId ?? "", tenantId: tenantId ?? "", expiryDate: expiryDate ?? "", reminderDays: reminderDays ?? "30" } });
+  const clientSecret = await getSetting("m365_clientSecret");
+  return NextResponse.json({ data: { clientId: clientId ?? "", tenantId: tenantId ?? "", expiryDate: expiryDate ?? "", reminderDays: reminderDays ?? "30", clientSecretSet: !!clientSecret } });
 }
 
 export async function POST(req: NextRequest) {

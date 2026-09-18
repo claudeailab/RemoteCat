@@ -7,29 +7,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-conventions";
 
 export default function PaymentsPage() {
   const [form, setForm] = useState({ publishableKey: "", secretKey: "", webhookSecret: "", liveMode: false });
+  const [secretKeySet, setSecretKeySet] = useState(false);
+  const [webhookSecretSet, setWebhookSecretSet] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [showWebhook, setShowWebhook] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const savedPublishableKey = useRef("");
   const savedLiveMode = useRef(false);
 
   useEffect(() => {
     fetch("/api/admin/settings/payments").then(r => r.json()).then(d => {
       if (d.data) {
-        const liveMode = d.data.liveMode ?? false;
-        savedLiveMode.current = liveMode;
-        setForm(f => ({ ...f, liveMode }));
+        const { liveMode, publishableKey, secretKeySet: sks, webhookSecretSet: whs } = d.data;
+        savedLiveMode.current = liveMode ?? false;
+        savedPublishableKey.current = publishableKey ?? "";
+        setForm(f => ({ ...f, liveMode: liveMode ?? false, publishableKey: publishableKey ?? "" }));
+        setSecretKeySet(!!sks);
+        setWebhookSecretSet(!!whs);
       }
     });
   }, []);
 
   const dirty =
-    form.publishableKey !== "" ||
+    form.publishableKey !== savedPublishableKey.current ||
     form.secretKey !== "" ||
     form.webhookSecret !== "" ||
     form.liveMode !== savedLiveMode.current;
@@ -43,7 +49,10 @@ export default function PaymentsPage() {
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("Stripe settings saved");
       savedLiveMode.current = form.liveMode;
-      setForm(f => ({ ...f, publishableKey: "", secretKey: "", webhookSecret: "" }));
+      savedPublishableKey.current = form.publishableKey;
+      if (form.secretKey) setSecretKeySet(true);
+      if (form.webhookSecret) setWebhookSecretSet(true);
+      setForm(f => ({ ...f, secretKey: "", webhookSecret: "" }));
     } finally { setSaving(false); }
   }
 
@@ -81,6 +90,11 @@ export default function PaymentsPage() {
                     {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {secretKeySet && form.secretKey === "" && (
+                  <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />Key saved — enter a new one to replace it
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Webhook Secret</Label>
@@ -90,6 +104,11 @@ export default function PaymentsPage() {
                     {showWebhook ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {webhookSecretSet && form.webhookSecret === "" && (
+                  <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />Secret saved — enter a new one to replace it
+                  </p>
+                )}
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button type="submit" disabled={!dirty || saving} className="w-full sm:w-auto">

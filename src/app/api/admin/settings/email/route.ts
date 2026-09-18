@@ -21,7 +21,9 @@ export async function GET() {
   const ssl = await getSetting("smtp_ssl");
   const fromName = await getSetting("smtp_fromName");
   const fromEmail = await getSetting("smtp_fromEmail");
-  return NextResponse.json({ data: { host: host ?? "", port: port ?? "587", ssl: ssl === "true", fromName: fromName ?? "", fromEmail: fromEmail ?? "" } });
+  const user = await getSetting("smtp_user");
+  const password = await getSetting("smtp_password");
+  return NextResponse.json({ data: { host: host ?? "", port: port ?? "587", ssl: ssl === "true", user: user ?? "", fromName: fromName ?? "", fromEmail: fromEmail ?? "", passwordSet: !!password } });
 }
 
 export async function POST(req: NextRequest) {

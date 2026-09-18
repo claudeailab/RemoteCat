@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Eye, EyeOff, Copy, ExternalLink } from "lucide-react";
+import { Loader2, Eye, EyeOff, Copy, ExternalLink, CheckCircle2 } from "lucide-react";
 import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-conventions";
 
 type FormState = { clientId: string; clientSecret: string; tenantId: string; expiryDate: string; reminderDays: string };
@@ -15,6 +15,7 @@ const defaultForm: FormState = { clientId: "", clientSecret: "", tenantId: "", e
 
 export default function M365Page() {
   const [form, setForm] = useState<FormState>(defaultForm);
+  const [clientSecretSet, setClientSecretSet] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -23,9 +24,11 @@ export default function M365Page() {
   useEffect(() => {
     fetch("/api/admin/settings/m365").then(r => r.json()).then(d => {
       if (d.data) {
-        const loaded = { ...defaultForm, ...d.data };
+        const { clientSecretSet: css, ...rest } = d.data;
+        const loaded = { ...defaultForm, ...rest };
         savedForm.current = loaded;
         setForm(loaded);
+        setClientSecretSet(!!css);
       }
     });
   }, []);
@@ -41,6 +44,7 @@ export default function M365Page() {
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("M365 settings saved");
       savedForm.current = { ...form };
+      if (form.clientSecret) setClientSecretSet(true);
     } finally { setSaving(false); }
   }
 
@@ -150,6 +154,11 @@ export default function M365Page() {
                     {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {clientSecretSet && form.clientSecret === "" && (
+                  <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />Secret saved — enter a new one to replace it
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label>Tenant ID</Label>

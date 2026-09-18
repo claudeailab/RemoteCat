@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-conventions";
 
 type FormState = { host: string; port: string; ssl: boolean; user: string; password: string; fromName: string; fromEmail: string };
@@ -15,6 +15,7 @@ const defaultForm: FormState = { host: "", port: "587", ssl: false, user: "", pa
 
 export default function EmailPage() {
   const [form, setForm] = useState<FormState>(defaultForm);
+  const [passwordSet, setPasswordSet] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
@@ -24,9 +25,11 @@ export default function EmailPage() {
   useEffect(() => {
     fetch("/api/admin/settings/email").then(r => r.json()).then(d => {
       if (d.data) {
-        const loaded = { ...defaultForm, ...d.data };
+        const { passwordSet: ps, ...rest } = d.data;
+        const loaded = { ...defaultForm, ...rest };
         savedForm.current = loaded;
         setForm(loaded);
+        setPasswordSet(!!ps);
       }
     });
   }, []);
@@ -42,6 +45,7 @@ export default function EmailPage() {
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("SMTP settings saved");
       savedForm.current = { ...form };
+      if (form.password) setPasswordSet(true);
     } finally { setSaving(false); }
   }
 
@@ -91,6 +95,11 @@ export default function EmailPage() {
                       {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {passwordSet && form.password === "" && (
+                    <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />Password saved — enter a new one to replace it
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
