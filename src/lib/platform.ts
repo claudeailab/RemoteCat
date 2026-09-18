@@ -5,7 +5,7 @@ export interface PlatformInfo {
   logoUrl: string;
 }
 
-const DEFAULT_LOGO = "https://api.iconify.design/solar:layers-bold.svg?color=%236366f1";
+const DEFAULT_LOGO = "https://api.iconify.design/solar:layers-bold.svg?color=%230d9488";
 
 export async function getPlatformInfo(): Promise<PlatformInfo> {
   const [name, logoUrl] = await Promise.all([

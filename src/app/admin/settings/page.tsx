@@ -33,7 +33,7 @@ function ThemeButton({ value, current, label, onClick }: { value: Theme; current
       onClick={() => onClick(value)}
       className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${current === value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
     >
-      <div className={`h-10 w-16 rounded-md ${value === "light" ? "bg-white border border-border" : value === "dark" ? "bg-[hsl(240_32%_9%)]" : "bg-gradient-to-br from-white to-[hsl(240_32%_9%)]"}`} />
+      <div className={`h-10 w-16 rounded-md ${value === "light" ? "bg-white border border-border" : value === "dark" ? "bg-[hsl(200_30%_10%)]" : "bg-gradient-to-br from-white to-[hsl(200_30%_10%)]"}`} />
       <span className="text-sm font-medium">{label}</span>
     </button>
   );
@@ -405,7 +405,7 @@ function PlatformTab() {
 
   if (loading) return <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>;
 
-  const DEFAULT_LOGO = "https://api.iconify.design/solar:layers-bold.svg?color=%236366f1";
+  const DEFAULT_LOGO = "https://api.iconify.design/solar:layers-bold.svg?color=%230d9488";
 
   return (
     <div className="space-y-6">

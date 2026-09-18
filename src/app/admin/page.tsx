@@ -49,20 +49,20 @@ export default async function AdminDashboardPage() {
       <div className={pageInner}>
 
         {/* Hero banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-600 to-purple-700 p-6 text-white mb-8">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-500 via-cyan-600 to-sky-600 p-6 text-white mb-8">
           <div className="absolute -top-6 -right-6 h-32 w-32 rounded-full bg-white/10" />
           <div className="absolute bottom-0 left-24 h-20 w-20 rounded-full bg-white/[0.07]" />
-          <ShieldCheck className="relative h-8 w-8 mb-3 text-indigo-200" />
+          <ShieldCheck className="relative h-8 w-8 mb-3 text-cyan-200" />
           <h1 className="relative text-2xl font-bold tracking-tight">{greeting(user.displayName ?? user.email)}</h1>
           <p className="relative text-white/70 text-sm mt-1">Admin Panel · Everything looks good.</p>
         </div>
 
         {/* Stat cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <StatCard icon={Users} label="Total Users" value={totalUsers.count} gradient="from-blue-500 to-indigo-600" />
-          <StatCard icon={Cloud} label="Azure AD Users" value={azureUsers.count} gradient="from-sky-400 to-blue-600" delay="delay-75" />
-          <StatCard icon={CreditCard} label="Plans" value={totalPlans.count} gradient="from-violet-500 to-purple-700" delay="delay-150" />
-          <StatCard icon={Activity} label="Audit Events" value={auditCount.count} gradient="from-emerald-400 to-teal-600" delay="delay-225" />
+          <StatCard icon={Users} label="Total Users" value={totalUsers.count} gradient="from-teal-500 to-cyan-600" />
+          <StatCard icon={Cloud} label="Azure AD Users" value={azureUsers.count} gradient="from-sky-400 to-blue-500" delay="delay-75" />
+          <StatCard icon={CreditCard} label="Plans" value={totalPlans.count} gradient="from-emerald-500 to-teal-600" delay="delay-150" />
+          <StatCard icon={Activity} label="Audit Events" value={auditCount.count} gradient="from-cyan-400 to-sky-600" delay="delay-225" />
         </div>
 
         {/* Recent activity */}

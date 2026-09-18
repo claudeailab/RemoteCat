@@ -8,7 +8,7 @@ import type { Features } from "@/lib/features";
 import type { PlatformInfo } from "@/lib/platform";
 import version from "../../../version.json";
 
-const SIDEBAR_BG = "linear-gradient(175deg, hsl(249,85%,60%) 0%, hsl(262,78%,55%) 55%, hsl(280,70%,52%) 100%)";
+const SIDEBAR_BG = "linear-gradient(175deg, hsl(186,85%,36%) 0%, hsl(200,80%,40%) 55%, hsl(210,78%,44%) 100%)";
 
 interface NavItem { href: string; label: string; icon: React.ElementType }
 interface Props {
