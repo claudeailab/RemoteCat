@@ -18,11 +18,11 @@ import type { FeatureKey } from "@/lib/features";
 import { iconUrl, DEFAULT_ICON, DEFAULT_PRIMARY_COLOR } from "@/lib/platform-shared";
 
 const FEATURE_LIST: { key: FeatureKey; label: string; description: string }[] = [
-  { key: "payments", label: "Payments", description: "Stripe integration and billing management" },
+  { key: "payments", label: "Payments", description: "Stripe, Viva Wallet, and PayPal billing" },
+  { key: "subscriptions", label: "Subscriptions", description: "Subscription plans and management" },
   { key: "m365", label: "Microsoft 365", description: "Azure AD sync and Microsoft SSO login" },
   { key: "email", label: "Email / SMTP", description: "Transactional email via SMTP" },
   { key: "ai", label: "Artificial Intelligence", description: "Anthropic and OpenAI integrations" },
-  { key: "subscriptions", label: "Subscriptions", description: "Subscription plans and management" },
 ];
 
 type Theme = "system" | "light" | "dark";
