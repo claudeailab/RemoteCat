@@ -133,7 +133,7 @@ export default function SettingsPage() {
   return (
     <div className={pageWrapper}>
       <div className={pageInner}>
-        <h1 className={pageTitle}>General Settings</h1>
+        <h1 className={pageTitle}>Settings</h1>
         <Tabs defaultValue="visual" className="mt-6">
           <TabsList>
             <TabsTrigger value="visual">Visual</TabsTrigger>

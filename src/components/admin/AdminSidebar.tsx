@@ -26,7 +26,7 @@ const platformItems = [
 ];
 
 const systemItems = [
-  { href: "/admin/settings", label: "General Settings", icon: SlidersHorizontal },
+  { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
   { href: "/admin/payments", label: "Payments", icon: CreditCard },
   { href: "/admin/m365", label: "Microsoft 365", icon: Settings },
   { href: "/admin/email", label: "Email Settings", icon: Mail },
