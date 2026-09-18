@@ -8,16 +8,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-conventions";
 
 export default function AIPage() {
   const [anthropicKey, setAnthropicKey] = useState("");
   const [anthropicModel, setAnthropicModel] = useState("claude-sonnet-4-6");
   const [savedAnthropicModel, setSavedAnthropicModel] = useState("claude-sonnet-4-6");
+  const [anthropicKeySet, setAnthropicKeySet] = useState(false);
   const [openaiKey, setOpenaiKey] = useState("");
   const [openaiModel, setOpenaiModel] = useState("gpt-4o");
   const [savedOpenaiModel, setSavedOpenaiModel] = useState("gpt-4o");
+  const [openaiKeySet, setOpenaiKeySet] = useState(false);
   const [showAnthropicKey, setShowAnthropicKey] = useState(false);
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
   const [savingAnthropic, setSavingAnthropic] = useState(false);
@@ -29,6 +31,8 @@ export default function AIPage() {
     fetch("/api/admin/settings/ai").then(r => r.json()).then(d => {
       if (d.anthropicModel) { setAnthropicModel(d.anthropicModel); setSavedAnthropicModel(d.anthropicModel); }
       if (d.openaiModel) { setOpenaiModel(d.openaiModel); setSavedOpenaiModel(d.openaiModel); }
+      setAnthropicKeySet(!!d.anthropicKeySet);
+      setOpenaiKeySet(!!d.openaiKeySet);
     });
   }, []);
 
@@ -44,6 +48,7 @@ export default function AIPage() {
       toast.success("Anthropic settings saved");
       setAnthropicKey("");
       setSavedAnthropicModel(anthropicModel);
+      setAnthropicKeySet(true);
     } finally { setSavingAnthropic(false); }
   }
 
@@ -66,6 +71,7 @@ export default function AIPage() {
       toast.success("OpenAI settings saved");
       setOpenaiKey("");
       setSavedOpenaiModel(openaiModel);
+      setOpenaiKeySet(true);
     } finally { setSavingOpenai(false); }
   }
 
@@ -100,6 +106,12 @@ export default function AIPage() {
                       {showAnthropicKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {anthropicKeySet && anthropicKey === "" && (
+                    <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                      API key saved — enter a new one to replace it
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label>Model</Label>
@@ -135,6 +147,12 @@ export default function AIPage() {
                       {showOpenaiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
+                  {openaiKeySet && openaiKey === "" && (
+                    <p className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                      API key saved — enter a new one to replace it
+                    </p>
+                  )}
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label>Model</Label>

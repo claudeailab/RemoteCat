@@ -12,9 +12,18 @@ const schema = z.object({
 
 export async function GET() {
   await requireAdmin();
-  const anthropicModel = await getSetting("anthropic_model");
-  const openaiModel = await getSetting("openai_model");
-  return NextResponse.json({ anthropicModel: anthropicModel ?? "claude-sonnet-4-6", openaiModel: openaiModel ?? "gpt-4o" });
+  const [anthropicModel, openaiModel, anthropicKey, openaiKey] = await Promise.all([
+    getSetting("anthropic_model"),
+    getSetting("openai_model"),
+    getSetting("anthropic_apiKey"),
+    getSetting("openai_apiKey"),
+  ]);
+  return NextResponse.json({
+    anthropicModel: anthropicModel ?? "claude-sonnet-4-6",
+    openaiModel: openaiModel ?? "gpt-4o",
+    anthropicKeySet: !!anthropicKey,
+    openaiKeySet: !!openaiKey,
+  });
 }
 
 export async function POST(req: NextRequest) {
