@@ -30,6 +30,16 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const { host, port, ssl, user, password, fromName, fromEmail } = parsed.data;
+
+  const [prevHost, prevPort, prevSsl, prevUser, prevFromName, prevFromEmail] = await Promise.all([
+    getSetting("smtp_host"),
+    getSetting("smtp_port"),
+    getSetting("smtp_ssl"),
+    getSetting("smtp_user"),
+    getSetting("smtp_fromName"),
+    getSetting("smtp_fromEmail"),
+  ]);
+
   await Promise.all([
     setSetting("smtp_host", host),
     setSetting("smtp_port", String(port)),
@@ -39,7 +49,17 @@ export async function POST(req: NextRequest) {
     setSetting("smtp_fromName", fromName),
     setSetting("smtp_fromEmail", fromEmail),
   ]);
+
+  const changes: string[] = [];
+  if (host !== (prevHost ?? "")) changes.push(`host: ${prevHost ?? "(unset)"}→${host}`);
+  if (String(port) !== (prevPort ?? "587")) changes.push(`port: ${prevPort ?? "587"}→${port}`);
+  if (String(ssl) !== (prevSsl ?? "false")) changes.push(`ssl: ${prevSsl ?? "false"}→${ssl}`);
+  if (user && user !== (prevUser ?? "")) changes.push(`user: ${prevUser ?? "(unset)"}→${user}`);
+  if (password) changes.push("password: [updated]");
+  if (fromName !== (prevFromName ?? "")) changes.push(`fromName: ${prevFromName ?? "(unset)"}→${fromName}`);
+  if (fromEmail !== (prevFromEmail ?? "")) changes.push(`fromEmail: ${prevFromEmail ?? "(unset)"}→${fromEmail}`);
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
-  await logAudit({ userEmail: admin.email, action: "update", resource: "settings.email", ip });
+  await logAudit({ userEmail: admin.email, action: "update", resource: "settings.email", detail: changes.join("; ") || "no changes", ip });
   return NextResponse.json({ ok: true });
 }

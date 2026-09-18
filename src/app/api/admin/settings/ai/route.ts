@@ -23,9 +23,16 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const { provider, apiKey, model } = parsed.data;
+
+  const prevModel = await getSetting(`${provider}_model`);
   if (apiKey) await setSetting(`${provider}_apiKey`, apiKey);
   await setSetting(`${provider}_model`, model);
+
+  const changes: string[] = [];
+  if (apiKey) changes.push("apiKey: [updated]");
+  if (model !== (prevModel ?? "")) changes.push(`model: ${prevModel ?? "(unset)"}→${model}`);
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
-  await logAudit({ userEmail: admin.email, action: "update", resource: `settings.ai.${provider}`, detail: `model=${model}`, ip });
+  await logAudit({ userEmail: admin.email, action: "update", resource: `settings.ai.${provider}`, detail: changes.join("; ") || "no changes", ip });
   return NextResponse.json({ ok: true });
 }

@@ -27,12 +27,28 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   const { clientId, clientSecret, tenantId, expiryDate, reminderDays } = parsed.data;
+
+  const [prevClientId, prevTenantId, prevExpiry, prevReminder] = await Promise.all([
+    getSetting("m365_clientId"),
+    getSetting("m365_tenantId"),
+    getSetting("m365_expiryDate"),
+    getSetting("m365_reminderDays"),
+  ]);
+
   await setSetting("m365_clientId", clientId);
   if (clientSecret) await setSetting("m365_clientSecret", clientSecret);
   await setSetting("m365_tenantId", tenantId);
   if (expiryDate) await setSetting("m365_expiryDate", expiryDate);
   if (reminderDays) await setSetting("m365_reminderDays", String(reminderDays));
+
+  const changes: string[] = [];
+  if (clientId !== (prevClientId ?? "")) changes.push(`clientId: ${prevClientId ?? "(unset)"}→${clientId}`);
+  if (clientSecret) changes.push("clientSecret: [updated]");
+  if (tenantId !== (prevTenantId ?? "")) changes.push(`tenantId: ${prevTenantId ?? "(unset)"}→${tenantId}`);
+  if (expiryDate && expiryDate !== (prevExpiry ?? "")) changes.push(`expiryDate: ${prevExpiry ?? "(unset)"}→${expiryDate}`);
+  if (reminderDays && String(reminderDays) !== (prevReminder ?? "30")) changes.push(`reminderDays: ${prevReminder ?? "30"}→${reminderDays}`);
+
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? req.headers.get("x-real-ip") ?? "unknown";
-  await logAudit({ userEmail: admin.email, action: "update", resource: "settings.m365", ip });
+  await logAudit({ userEmail: admin.email, action: "update", resource: "settings.m365", detail: changes.join("; ") || "no changes", ip });
   return NextResponse.json({ ok: true });
 }
