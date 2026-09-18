@@ -37,10 +37,10 @@
   --animate-shimmer: shimmer 1.8s linear infinite;
 }
 
-/* Dark mode — warm charcoal, never pure black */
+/* Dark mode — explicit override */
 :root[data-theme="dark"] {
-  --color-background:          hsl(20 8% 9%);     /* warm charcoal */
-  --color-foreground:          hsl(40 10% 93%);   /* warm near-white */
+  --color-background:          hsl(20 8% 9%);
+  --color-foreground:          hsl(40 10% 93%);
   --color-card:                hsl(20 8% 13%);
   --color-card-foreground:     hsl(40 10% 93%);
   --color-popover:             hsl(20 8% 13%);
@@ -56,6 +56,29 @@
   --color-destructive-foreground: hsl(0 0% 100%);
   --color-border:              hsl(20 8% 22%);
   --color-input:               hsl(20 8% 16%);
+}
+
+/* Dark mode — system preference (no explicit override) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-background:          hsl(20 8% 9%);
+    --color-foreground:          hsl(40 10% 93%);
+    --color-card:                hsl(20 8% 13%);
+    --color-card-foreground:     hsl(40 10% 93%);
+    --color-popover:             hsl(20 8% 13%);
+    --color-popover-foreground:  hsl(40 10% 93%);
+    --color-primary-foreground:  hsl(20 14% 6%);
+    --color-secondary:           hsl(20 8% 18%);
+    --color-secondary-foreground:hsl(40 8% 82%);
+    --color-muted:               hsl(20 8% 16%);
+    --color-muted-foreground:    hsl(30 6% 58%);
+    --color-accent:              hsl(20 8% 18%);
+    --color-accent-foreground:   hsl(40 8% 82%);
+    --color-destructive:         hsl(0 66% 58%);
+    --color-destructive-foreground: hsl(0 0% 100%);
+    --color-border:              hsl(20 8% 22%);
+    --color-input:               hsl(20 8% 16%);
+  }
 }
 
 @keyframes fade-in {
@@ -85,8 +108,9 @@
     background-image: radial-gradient(ellipse 140% 50% at 50% 0%,
       hsl(40 30% 97%) 0%, transparent 65%);
   }
-  :root[data-theme="dark"] body {
-    background-image: none;
+  :root[data-theme="dark"] body { background-image: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) body { background-image: none; }
   }
 }
 
@@ -113,6 +137,12 @@
     background: hsl(20 8% 11%);
     border-color: hsl(20 8% 20%);
   }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .sidebar-panel {
+      background: hsl(20 8% 11%);
+      border-color: hsl(20 8% 20%);
+    }
+  }
 
   .card-hover {
     transition: transform 0.16s ease, box-shadow 0.16s ease;
@@ -123,6 +153,11 @@
   }
   :root[data-theme="dark"] .card-hover:hover {
     box-shadow: 0 8px 24px -6px rgba(0,0,0,0.30), 0 3px 8px -3px rgba(0,0,0,0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .card-hover:hover {
+      box-shadow: 0 8px 24px -6px rgba(0,0,0,0.30), 0 3px 8px -3px rgba(0,0,0,0.18);
+    }
   }
 
   .page-header {
