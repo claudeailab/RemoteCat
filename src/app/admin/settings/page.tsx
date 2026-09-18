@@ -34,7 +34,7 @@ function ThemeButton({ value, current, label, onClick }: { value: Theme; current
       onClick={() => onClick(value)}
       className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors ${current === value ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"}`}
     >
-      <div className={`h-10 w-16 rounded-md ${value === "light" ? "bg-white border border-border" : value === "dark" ? "bg-[hsl(0_0%_8%)]" : "bg-gradient-to-br from-white to-[hsl(0_0%_8%)]"}`} />
+      <div className={`h-10 w-16 rounded-md ${value === "light" ? "bg-[hsl(40_8%_98%)] border border-border" : value === "dark" ? "bg-[hsl(20_8%_9%)]" : "bg-gradient-to-br from-[hsl(40_8%_98%)] to-[hsl(20_8%_9%)]"}`} />
       <span className="text-sm font-medium">{label}</span>
     </button>
   );
@@ -585,7 +585,18 @@ function PlatformTab() {
             <div className="h-2 w-16 rounded bg-white/50" />
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">Used for the sidebar, buttons, and accent colors.</p>
+        <div className="flex items-center gap-2 mt-1">
+          <p className="text-xs text-muted-foreground">Used for the sidebar, buttons, and accent colors.</p>
+          {primaryColor !== DEFAULT_PRIMARY_COLOR && (
+            <button
+              type="button"
+              onClick={() => setPrimaryColor(DEFAULT_PRIMARY_COLOR)}
+              className="text-xs text-primary underline-offset-2 hover:underline shrink-0"
+            >
+              Reset to default
+            </button>
+          )}
+        </div>
       </div>
       <Button onClick={handleSave} disabled={saving || !dirty || !isValidHex}>
         {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}

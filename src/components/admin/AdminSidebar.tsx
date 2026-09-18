@@ -63,10 +63,6 @@ export default function AdminSidebar({ user, features, platform }: Props) {
     );
   };
 
-  const platformItems: NavItem[] = [
-    { href: "/admin/users", label: "Users", icon: Users },
-  ];
-
   const systemItems: NavItem[] = [
     { href: "/admin/settings", label: "Settings", icon: SlidersHorizontal },
     ...(features.payments ? [{ href: "/admin/payments", label: "Payments", icon: CreditCard }] : []),
@@ -108,7 +104,7 @@ export default function AdminSidebar({ user, features, platform }: Props) {
 
         <nav className="flex-1 overflow-y-auto p-3 flex flex-col">
           {navLink("/admin", "Dashboard", LayoutDashboard, true)}
-          {navGroup("Platform", platformItems)}
+          {navLink("/admin/users", "Users", Users)}
           {navGroup("System", systemItems)}
         </nav>
 

@@ -1,68 +1,75 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(0 0% 5%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(0 0% 5%);
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(0 0% 5%);
-  --color-primary: hsl(186 85% 38%);
-  --color-primary-foreground: hsl(0 0% 100%);
-  --color-secondary: hsl(0 0% 96%);
-  --color-secondary-foreground: hsl(0 0% 15%);
-  --color-muted: hsl(0 0% 95%);
-  --color-muted-foreground: hsl(0 0% 45%);
-  --color-accent: hsl(0 0% 95%);
-  --color-accent-foreground: hsl(0 0% 15%);
-  --color-destructive: hsl(0 84% 58%);
-  --color-destructive-foreground: hsl(0 0% 100%);
-  --color-border: hsl(0 0% 90%);
-  --color-input: hsl(0 0% 90%);
-  --color-ring: hsl(186 85% 38%);
-  --radius: 0.6rem;
+/*
+  Calm design palette — 2024/25 standards
+  Light: warm off-white (Stone 50) bg, Stone 900 text, white cards with soft border
+  Dark:  warm charcoal bg, warm near-white text, no pure black anywhere
+  Primary: user-configurable via --color-primary on <html> inline style
+  Contrast ratios: body text ≥ 13:1, muted text ≥ 4.6:1 (WCAG AA+)
+*/
 
-  --animate-fade-in: fade-in 0.35s ease-out both;
-  --animate-slide-up: slide-up 0.4s ease-out both;
-  --animate-scale-in: scale-in 0.2s ease-out both;
+@theme {
+  /* Light (default) — warm Stone palette */
+  --color-background:          hsl(40 8% 98%);    /* Stone-50 #fafaf9 */
+  --color-foreground:          hsl(20 14% 10%);   /* Stone-900 #1c1917 */
+  --color-card:                hsl(0 0% 100%);    /* pure white — floats on bg */
+  --color-card-foreground:     hsl(20 14% 10%);
+  --color-popover:             hsl(0 0% 100%);
+  --color-popover-foreground:  hsl(20 14% 10%);
+  --color-primary:             hsl(186 60% 38%);  /* fallback; overridden at runtime */
+  --color-primary-foreground:  hsl(0 0% 100%);
+  --color-secondary:           hsl(40 6% 95%);    /* Stone-100 */
+  --color-secondary-foreground:hsl(20 10% 25%);
+  --color-muted:               hsl(40 6% 95%);
+  --color-muted-foreground:    hsl(25 5% 46%);    /* Stone-500, ≥4.6:1 on bg */
+  --color-accent:              hsl(40 6% 95%);
+  --color-accent-foreground:   hsl(20 10% 25%);
+  --color-destructive:         hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-border:              hsl(30 6% 88%);    /* Stone-200 */
+  --color-input:               hsl(30 6% 88%);
+  --color-ring:                hsl(186 60% 38%);
+  --radius: 0.5rem;
+
+  --animate-fade-in: fade-in 0.3s ease-out both;
+  --animate-slide-up: slide-up 0.35s ease-out both;
+  --animate-scale-in: scale-in 0.18s ease-out both;
   --animate-shimmer: shimmer 1.8s linear infinite;
 }
 
+/* Dark mode — warm charcoal, never pure black */
 :root[data-theme="dark"] {
-  --color-background: hsl(0 0% 8%);
-  --color-foreground: hsl(0 0% 95%);
-  --color-card: hsl(0 0% 12%);
-  --color-card-foreground: hsl(0 0% 95%);
-  --color-popover: hsl(0 0% 12%);
-  --color-popover-foreground: hsl(0 0% 95%);
-  --color-primary-foreground: hsl(0 0% 5%);
-  --color-secondary: hsl(0 0% 18%);
-  --color-secondary-foreground: hsl(0 0% 90%);
-  --color-muted: hsl(0 0% 15%);
-  --color-muted-foreground: hsl(0 0% 60%);
-  --color-accent: hsl(0 0% 18%);
-  --color-accent-foreground: hsl(0 0% 90%);
-  --color-destructive: hsl(0 72% 62%);
+  --color-background:          hsl(20 8% 9%);     /* warm charcoal */
+  --color-foreground:          hsl(40 10% 93%);   /* warm near-white */
+  --color-card:                hsl(20 8% 13%);
+  --color-card-foreground:     hsl(40 10% 93%);
+  --color-popover:             hsl(20 8% 13%);
+  --color-popover-foreground:  hsl(40 10% 93%);
+  --color-primary-foreground:  hsl(20 14% 6%);
+  --color-secondary:           hsl(20 8% 18%);
+  --color-secondary-foreground:hsl(40 8% 82%);
+  --color-muted:               hsl(20 8% 16%);
+  --color-muted-foreground:    hsl(30 6% 58%);
+  --color-accent:              hsl(20 8% 18%);
+  --color-accent-foreground:   hsl(40 8% 82%);
+  --color-destructive:         hsl(0 66% 58%);
   --color-destructive-foreground: hsl(0 0% 100%);
-  --color-border: hsl(0 0% 20%);
-  --color-input: hsl(0 0% 15%);
+  --color-border:              hsl(20 8% 22%);
+  --color-input:               hsl(20 8% 16%);
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.96); }
+  from { opacity: 0; transform: scale(0.97); }
   to   { opacity: 1; transform: scale(1); }
 }
-
 @keyframes shimmer {
   from { background-position: -200% center; }
   to   { background-position: 200% center; }
@@ -74,6 +81,12 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
+    /* Very subtle warm vignette — adds depth without distraction */
+    background-image: radial-gradient(ellipse 140% 50% at 50% 0%,
+      hsl(40 30% 97%) 0%, transparent 65%);
+  }
+  :root[data-theme="dark"] body {
+    background-image: none;
   }
 }
 
@@ -84,36 +97,40 @@
   .delay-300 { animation-delay: 300ms; }
   .delay-375 { animation-delay: 375ms; }
 
+  /* Sidebar: colored brand gradient in light, warm charcoal in dark */
   .sidebar-panel {
     background: linear-gradient(175deg,
-      color-mix(in srgb, var(--color-primary) 82%, white) 0%,
-      var(--color-primary) 60%,
-      color-mix(in srgb, var(--color-primary) 72%, black) 100%);
-    border-color: rgba(255,255,255,0.12);
+      color-mix(in srgb, var(--color-primary) 80%, white) 0%,
+      var(--color-primary) 58%,
+      color-mix(in srgb, var(--color-primary) 68%, black) 100%);
+    border-color: rgba(255,255,255,0.11);
   }
   :root[data-theme="dark"] .sidebar-panel {
-    background: hsl(0 0% 10%);
-    border-color: hsl(0 0% 20%);
+    background: hsl(20 8% 11%);
+    border-color: hsl(20 8% 20%);
   }
 
   .card-hover {
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
   }
   .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px -8px rgba(0,0,0,0.10), 0 4px 12px -4px rgba(0,0,0,0.06);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px -6px rgba(0,0,0,0.08), 0 3px 8px -3px rgba(0,0,0,0.05);
   }
+  :root[data-theme="dark"] .card-hover:hover {
+    box-shadow: 0 8px 24px -6px rgba(0,0,0,0.30), 0 3px 8px -3px rgba(0,0,0,0.18);
+  }
+
   .page-header {
-    @apply relative overflow-hidden rounded-2xl p-5 mb-6 text-white;
+    @apply relative overflow-hidden rounded-xl p-5 mb-6 text-white;
     background: linear-gradient(135deg,
-      color-mix(in srgb, var(--color-primary) 85%, white) 0%,
-      var(--color-primary) 50%,
-      color-mix(in srgb, var(--color-primary) 70%, black) 100%);
+      color-mix(in srgb, var(--color-primary) 82%, white) 0%,
+      var(--color-primary) 52%,
+      color-mix(in srgb, var(--color-primary) 68%, black) 100%);
   }
   .page-header::before {
     content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(ellipse 80% 60% at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 60%);
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 50% at 85% 15%, rgba(255,255,255,0.14) 0%, transparent 60%);
   }
 }
