@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,15 +10,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Loader2, Eye, EyeOff, Copy, ExternalLink } from "lucide-react";
 import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-conventions";
 
+type FormState = { clientId: string; clientSecret: string; tenantId: string; expiryDate: string; reminderDays: string };
+const defaultForm: FormState = { clientId: "", clientSecret: "", tenantId: "", expiryDate: "", reminderDays: "30" };
+
 export default function M365Page() {
-  const [form, setForm] = useState({ clientId: "", clientSecret: "", tenantId: "", expiryDate: "", reminderDays: "30" });
+  const [form, setForm] = useState<FormState>(defaultForm);
   const [showSecret, setShowSecret] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const savedForm = useRef<FormState>(defaultForm);
 
   useEffect(() => {
-    fetch("/api/admin/settings/m365").then(r => r.json()).then(d => { if (d.data) setForm(f => ({ ...f, ...d.data })); });
+    fetch("/api/admin/settings/m365").then(r => r.json()).then(d => {
+      if (d.data) {
+        const loaded = { ...defaultForm, ...d.data };
+        savedForm.current = loaded;
+        setForm(loaded);
+      }
+    });
   }, []);
+
+  const dirty = JSON.stringify(form) !== JSON.stringify(savedForm.current);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -28,6 +40,7 @@ export default function M365Page() {
       const d = await r.json();
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("M365 settings saved");
+      savedForm.current = { ...form };
     } finally { setSaving(false); }
   }
 
@@ -153,8 +166,8 @@ export default function M365Page() {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button type="submit" disabled={saving} className="w-full sm:w-auto">
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                <Button type="submit" disabled={!dirty || saving} className="w-full sm:w-auto">
+                  {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
                 </Button>
                 <Button type="button" variant="outline" disabled={testing} onClick={handleTest} className="w-full sm:w-auto">
                   {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Test Connection"}

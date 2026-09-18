@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,10 +16,23 @@ export default function PaymentsPage() {
   const [showWebhook, setShowWebhook] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const savedLiveMode = useRef(false);
 
   useEffect(() => {
-    fetch("/api/admin/settings/payments").then(r => r.json()).then(d => { if (d.data) setForm(f => ({ ...f, liveMode: d.data.liveMode ?? false })); });
+    fetch("/api/admin/settings/payments").then(r => r.json()).then(d => {
+      if (d.data) {
+        const liveMode = d.data.liveMode ?? false;
+        savedLiveMode.current = liveMode;
+        setForm(f => ({ ...f, liveMode }));
+      }
+    });
   }, []);
+
+  const dirty =
+    form.publishableKey !== "" ||
+    form.secretKey !== "" ||
+    form.webhookSecret !== "" ||
+    form.liveMode !== savedLiveMode.current;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -29,6 +42,8 @@ export default function PaymentsPage() {
       const d = await r.json();
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("Stripe settings saved");
+      savedLiveMode.current = form.liveMode;
+      setForm(f => ({ ...f, publishableKey: "", secretKey: "", webhookSecret: "" }));
     } finally { setSaving(false); }
   }
 
@@ -77,8 +92,8 @@ export default function PaymentsPage() {
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button type="submit" disabled={saving} className="w-full sm:w-auto">
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                <Button type="submit" disabled={!dirty || saving} className="w-full sm:w-auto">
+                  {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
                 </Button>
                 <Button type="button" variant="outline" disabled={testing} onClick={handleTest} className="w-full sm:w-auto">
                   {testing ? <Loader2 className="h-4 w-4 animate-spin" /> : "Test Connection"}

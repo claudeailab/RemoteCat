@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,16 +10,28 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-conventions";
 
+type FormState = { host: string; port: string; ssl: boolean; user: string; password: string; fromName: string; fromEmail: string };
+const defaultForm: FormState = { host: "", port: "587", ssl: false, user: "", password: "", fromName: "", fromEmail: "" };
+
 export default function EmailPage() {
-  const [form, setForm] = useState({ host: "", port: "587", ssl: false, user: "", password: "", fromName: "", fromEmail: "" });
+  const [form, setForm] = useState<FormState>(defaultForm);
   const [showPass, setShowPass] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testTo, setTestTo] = useState("");
+  const savedForm = useRef<FormState>(defaultForm);
 
   useEffect(() => {
-    fetch("/api/admin/settings/email").then(r => r.json()).then(d => { if (d.data) setForm(f => ({ ...f, ...d.data })); });
+    fetch("/api/admin/settings/email").then(r => r.json()).then(d => {
+      if (d.data) {
+        const loaded = { ...defaultForm, ...d.data };
+        savedForm.current = loaded;
+        setForm(loaded);
+      }
+    });
   }, []);
+
+  const dirty = JSON.stringify(form) !== JSON.stringify(savedForm.current);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -29,6 +41,7 @@ export default function EmailPage() {
       const d = await r.json();
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("SMTP settings saved");
+      savedForm.current = { ...form };
     } finally { setSaving(false); }
   }
 
@@ -78,7 +91,7 @@ export default function EmailPage() {
                       {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-        </div>
+                </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
@@ -90,8 +103,8 @@ export default function EmailPage() {
                   <Input type="email" value={form.fromEmail} onChange={e => setForm(f => ({ ...f, fromEmail: e.target.value }))} />
                 </div>
               </div>
-              <Button type="submit" disabled={saving} className="w-full sm:w-auto">
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              <Button type="submit" disabled={!dirty || saving} className="w-full sm:w-auto">
+                {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
               </Button>
             </form>
             <div className="mt-6 flex flex-col sm:flex-row gap-2 items-start">

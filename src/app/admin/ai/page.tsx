@@ -14,8 +14,10 @@ import { pageWrapper, pageInner, pageTitle, fieldGap } from "@/lib/ui-convention
 export default function AIPage() {
   const [anthropicKey, setAnthropicKey] = useState("");
   const [anthropicModel, setAnthropicModel] = useState("claude-sonnet-4-6");
+  const [savedAnthropicModel, setSavedAnthropicModel] = useState("claude-sonnet-4-6");
   const [openaiKey, setOpenaiKey] = useState("");
   const [openaiModel, setOpenaiModel] = useState("gpt-4o");
+  const [savedOpenaiModel, setSavedOpenaiModel] = useState("gpt-4o");
   const [showAnthropicKey, setShowAnthropicKey] = useState(false);
   const [showOpenaiKey, setShowOpenaiKey] = useState(false);
   const [savingAnthropic, setSavingAnthropic] = useState(false);
@@ -25,10 +27,13 @@ export default function AIPage() {
 
   useEffect(() => {
     fetch("/api/admin/settings/ai").then(r => r.json()).then(d => {
-      if (d.anthropicModel) setAnthropicModel(d.anthropicModel);
-      if (d.openaiModel) setOpenaiModel(d.openaiModel);
+      if (d.anthropicModel) { setAnthropicModel(d.anthropicModel); setSavedAnthropicModel(d.anthropicModel); }
+      if (d.openaiModel) { setOpenaiModel(d.openaiModel); setSavedOpenaiModel(d.openaiModel); }
     });
   }, []);
+
+  const dirtyAnthropic = anthropicKey !== "" || anthropicModel !== savedAnthropicModel;
+  const dirtyOpenai = openaiKey !== "" || openaiModel !== savedOpenaiModel;
 
   async function saveAnthropic() {
     setSavingAnthropic(true);
@@ -38,6 +43,7 @@ export default function AIPage() {
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("Anthropic settings saved");
       setAnthropicKey("");
+      setSavedAnthropicModel(anthropicModel);
     } finally { setSavingAnthropic(false); }
   }
 
@@ -59,6 +65,7 @@ export default function AIPage() {
       if (!r.ok) { toast.error(d.error ?? "Save failed"); return; }
       toast.success("OpenAI settings saved");
       setOpenaiKey("");
+      setSavedOpenaiModel(openaiModel);
     } finally { setSavingOpenai(false); }
   }
 
@@ -106,8 +113,8 @@ export default function AIPage() {
                   </Select>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button onClick={saveAnthropic} disabled={savingAnthropic} className="w-full sm:w-auto">
-                    {savingAnthropic ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                  <Button onClick={saveAnthropic} disabled={!dirtyAnthropic || savingAnthropic} className="w-full sm:w-auto">
+                    {savingAnthropic ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
                   </Button>
                   <Button variant="outline" onClick={testAnthropic} disabled={testingAnthropic} className="w-full sm:w-auto">
                     {testingAnthropic ? <Loader2 className="h-4 w-4 animate-spin" /> : "Test"}
@@ -141,8 +148,8 @@ export default function AIPage() {
                   </Select>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button onClick={saveOpenai} disabled={savingOpenai} className="w-full sm:w-auto">
-                    {savingOpenai ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+                  <Button onClick={saveOpenai} disabled={!dirtyOpenai || savingOpenai} className="w-full sm:w-auto">
+                    {savingOpenai ? <><Loader2 className="h-4 w-4 animate-spin mr-1.5" />Saving…</> : "Save"}
                   </Button>
                   <Button variant="outline" onClick={testOpenai} disabled={testingOpenai} className="w-full sm:w-auto">
                     {testingOpenai ? <Loader2 className="h-4 w-4 animate-spin" /> : "Test"}
