@@ -97,6 +97,13 @@
   .delay-300 { animation-delay: 300ms; }
   .delay-375 { animation-delay: 375ms; }
 
+  /* Sidebar active nav state */
+  .nav-active {
+    background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-primary);
+  }
+  .nav-active-icon { color: var(--color-primary); }
+
   /* Sidebar: neutral white in light, warm charcoal in dark */
   .sidebar-panel {
     background: hsl(0 0% 100%);
