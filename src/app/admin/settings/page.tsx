@@ -15,7 +15,7 @@ import { Loader2, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, CheckCircle2,
 import { pageWrapper, pageInner, pageTitle } from "@/lib/ui-conventions";
 import { PLATFORM_PERMISSIONS } from "@/lib/permissions";
 import type { FeatureKey } from "@/lib/features";
-import { iconUrl, DEFAULT_ICON } from "@/lib/platform";
+import { iconUrl, DEFAULT_ICON } from "@/lib/platform-shared";
 
 const FEATURE_LIST: { key: FeatureKey; label: string; description: string }[] = [
   { key: "payments", label: "Payments", description: "Stripe integration and billing management" },

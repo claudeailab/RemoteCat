@@ -1,19 +1,9 @@
 import { getSetting, setSetting } from "./encryption";
+export { iconUrl, DEFAULT_ICON } from "./platform-shared";
 
 export interface PlatformInfo {
   name: string;
-  icon: string;  // Iconify identifier, e.g. "solar:layers-bold"
-}
-
-export const DEFAULT_ICON = "solar:layers-bold";
-const TEAL = "%230d9488";
-
-export function iconUrl(icon: string, color = TEAL): string {
-  const colon = icon.indexOf(":");
-  if (colon === -1) return `https://api.iconify.design/${icon}.svg?color=${color}`;
-  const prefix = icon.slice(0, colon);
-  const name = icon.slice(colon + 1);
-  return `https://api.iconify.design/${prefix}/${name}.svg?color=${color}`;
+  icon: string;
 }
 
 export async function getPlatformInfo(): Promise<PlatformInfo> {
@@ -23,7 +13,7 @@ export async function getPlatformInfo(): Promise<PlatformInfo> {
   ]);
   return {
     name: name || "Platform",
-    icon: icon || DEFAULT_ICON,
+    icon: icon || "solar:layers-bold",
   };
 }
 

@@ -6,7 +6,7 @@ import { LayoutDashboard, Settings, Users, CreditCard, Mail, Bot, SlidersHorizon
 import { cn } from "@/lib/utils";
 import type { Features } from "@/lib/features";
 import type { PlatformInfo } from "@/lib/platform";
-import { iconUrl } from "@/lib/platform";
+import { iconUrl } from "@/lib/platform-shared";
 import version from "../../../version.json";
 
 const SIDEBAR_BG = "linear-gradient(175deg, hsl(186,85%,36%) 0%, hsl(200,80%,40%) 55%, hsl(210,78%,44%) 100%)";
